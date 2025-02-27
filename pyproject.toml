@@ -1,0 +1,52 @@
+[build-system]
+requires = ['hatchling', 'hatch-vcs', 'hatch-fancy-pypi-readme']
+build-backend = 'hatchling.build'
+
+[project]
+name = 'dry-foundation'
+authors = [
+  { name = 'Mitch Negus', email = 'mitchnegus57@gmail.com' },
+]
+description = 'Tools and components for building customized and consistent small-scale Flask applications.'
+license = { text = 'GNU GPLv3' }
+requires-python = '>=3.9,<=3.13'
+keywords = [
+]
+classifiers = [
+  'License :: OSI Approved :: GNU General Public License v3 (GPLv3)',
+  'Natural Language :: English',
+  'Operating System :: OS Independent',
+  'Programming Language :: Python',
+]
+dynamic = ['readme', 'version']
+
+[tool.hatch.version]
+source = 'vcs'
+
+[tool.hatch.build.targets.wheel]
+packages = [
+  'src/dry_foundation',
+]
+
+[tool.hatch.build.hooks.vcs]
+version-file = 'src/dry_foundation/_version.py'
+
+[tool.hatch.metadata.hooks.fancy-pypi-readme]
+content-type = 'text/markdown'
+
+[[tool.hatch.metadata.hooks.fancy-pypi-readme.fragments]]
+path = 'README.md'
+
+[[tool.hatch.metadata.hooks.fancy-pypi-readme.substitutions]]
+pattern = 'src="((?!https?:\/\/)\S+?)"'
+replacement = 'src="https://raw.githubusercontent.com/mitchnegus/dry_foundations/main/\1"'
+
+[[tool.hatch.metadata.hooks.fancy-pypi-readme.substitutions]]
+pattern = '\[(.+?)\]\(((?!https?://)\S+?)\)'
+replacement = '[\1](https://github.com/mitchnegus/dry_foundations/blob/main/\g<2>)'
+
+[tool.black]
+force-exclude = 'src/dry_foundation/_version.py'
+
+[tool.isort]
+profile = 'black'
