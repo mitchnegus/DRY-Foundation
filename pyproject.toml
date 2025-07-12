@@ -9,16 +9,46 @@ authors = [
 ]
 description = 'Tools and components for building customized and consistent small-scale Flask applications.'
 license = { text = 'GNU GPLv3' }
-requires-python = '>=3.9,<=3.13'
+requires-python = '>=3.10'
+dependencies = [
+  'Flask>=2.2.2',
+  'gunicorn>=23.0.0',
+  'SQLAlchemy>=2.0.0',
+  'sqlalchemy-views>=0.3.2',
+]
 keywords = [
 ]
 classifiers = [
+  'Development Status :: 3 - Alpha',
+  'Framework :: Flask',
+  'Framework :: Pytest',
   'License :: OSI Approved :: GNU General Public License v3 (GPLv3)',
   'Natural Language :: English',
   'Operating System :: OS Independent',
   'Programming Language :: Python',
 ]
 dynamic = ['readme', 'version']
+
+[project.urls]
+Download = 'https://pypi.org/project/...'
+Homepage = 'https://github.com/mitchnegus/...'
+Repository = 'https://github.com/mitchnegus/...'
+Changelog = 'https://github.com/mitchnegus/.../blob/main/CHANGELOG.md'
+
+# Set DRY Foundation as a pytest plugin to use the `AppTestManager` functionality
+[project.entry-points.pytest11]
+dry_foundation = "dry_foundation.testing.manager"
+
+[project.optional-dependencies]
+dev = [
+  "nox~=2025.5.1",
+  "dry_foundation[test]",
+]
+test = [
+  "coverage==7.6.10",
+  "pytest==8.3.4",
+  #"pytest-cov==6.0.0",
+]
 
 [tool.hatch.version]
 source = 'vcs'
@@ -45,8 +75,29 @@ replacement = 'src="https://raw.githubusercontent.com/mitchnegus/dry_foundations
 pattern = '\[(.+?)\]\(((?!https?://)\S+?)\)'
 replacement = '[\1](https://github.com/mitchnegus/dry_foundations/blob/main/\g<2>)'
 
+[tool.pytest.ini_options]
+addopts = [
+  '--import-mode=importlib',
+]
+pythonpath = ["tests/helpers"]
+norecursedirs = ["tests/helpers"]
+
+[tool.coverage.run]
+omit = [
+   '_version.py',
+]
+
+[tool.coverage.report]
+exclude_lines = [
+  'raise NotImplementedError',
+  'pass',
+]
+
 [tool.black]
 force-exclude = 'src/dry_foundation/_version.py'
 
 [tool.isort]
 profile = 'black'
+src_paths = ['src/dry_foundation', 'tests']
+skip = ['src/dry_foundation/_version.py']
+known_local_folder = ["testing_helpers"]
