@@ -52,12 +52,12 @@ def app_test_manager():
 
 @pytest.fixture
 def app():
-    yield app_manager.get_app()
+    return app_manager.get_app()
 
 
 @pytest.fixture
 def client(app):
-    yield app.test_client()
+    return app.test_client()
 
 
 @pytest.fixture
@@ -86,7 +86,7 @@ def mock_click_context():
 def instance_path(tmp_path):
     instance_dir = tmp_path / "instance"
     instance_dir.mkdir()
-    yield instance_dir
+    return instance_dir
 
 
 @pytest.fixture

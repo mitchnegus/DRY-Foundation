@@ -1,7 +1,7 @@
 """Default configuration settings."""
 
 import json
-from abc import ABC, abstractmethod
+from abc import ABC
 from pathlib import Path
 
 DEFAULT_CONFIG_DIR = Path("/etc")

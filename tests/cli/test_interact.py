@@ -10,7 +10,7 @@ class TestDryFlaskGroup:
     """Tests for the ``DryFlaskGroup`` object."""
 
     def test_initialization(self):
-        group = DryFlaskGroup("test")
+        DryFlaskGroup("test")
         assert os.environ.get("FLASK_APP") == "test"
 
     def test_help(self, runner):

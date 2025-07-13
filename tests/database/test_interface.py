@@ -27,7 +27,7 @@ def default_interface():
 
 class TestInterface:
     def test_interface_database(self, app):
-        assert "entries" in app.db.tables.keys()
+        assert "entries" in app.db.tables
 
     def test_default_interface(self, app, default_interface):
         assert isinstance(app.db.default_interface, SQLAlchemy)
@@ -53,7 +53,7 @@ def execute_database_transaction(app, x, y):
 
 
 @pytest.mark.parametrize(
-    "execution_function, expected_count",
+    ("execution_function", "expected_count"),
     [
         [db_transaction(execute_database_transaction), 1],
         [execute_database_transaction, 0],

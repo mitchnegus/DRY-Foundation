@@ -7,7 +7,7 @@ import functools
 from flask import current_app
 from sqlalchemy import URL, MetaData, create_engine, event
 from sqlalchemy.engine import Engine
-from sqlalchemy.orm import DeclarativeBase, scoped_session, sessionmaker
+from sqlalchemy.orm import scoped_session, sessionmaker
 
 DIALECT = "sqlite"
 DBAPI = "pysqlite"

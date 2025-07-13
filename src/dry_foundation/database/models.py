@@ -105,11 +105,9 @@ class AuthorizedAccessMixin:
             A statement representing the select query to make against
             the database.
         """
-        if args:
-            query = select(*args, **kwargs)
-        else:
-            query = select(cls, **kwargs)
-        query = cls._join_user(query)
+        query = cls._join_user(
+            select(*args, **kwargs) if args else select(cls, **kwargs)
+        )
         for target in guaranteed_joins:
             if target not in cls._user_id_join_chain:
                 query = query.join(target)

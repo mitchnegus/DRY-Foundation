@@ -102,5 +102,17 @@ exclude = [
   'src/dry_foundation/_version.py',
 ]
 
+[tool.ruff.lint]
+select = ['A', 'C4', 'E', 'F', 'I', 'PIE', 'PT', 'UP', 'SIM']
+exclude = [
+  'src/dry_foundation/_version.py',
+]
+ignore = [
+  'PIE790',
+  'PT007',
+  'PT011',
+  'SIM300',  # Yoda condition detection is poor in tests
+]
+
 [tool.ruff.lint.isort]
 known-local-folder = ["testing_helpers"]

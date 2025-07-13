@@ -1,10 +1,7 @@
 """Tests for application configuration objects."""
 
-import json
 from pathlib import Path
 from unittest.mock import patch
-
-import pytest
 
 from dry_foundation.config import (
     DevelopmentConfig,

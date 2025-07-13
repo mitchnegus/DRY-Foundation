@@ -5,13 +5,17 @@ Expose commonly used database functionality to the rest of the package.
 import sqlite3
 from pathlib import Path
 
-import click
 from flask import current_app
 from flask.cli import with_appcontext
 
 from ..cli.console import echo_text
 from ..utils import get_timestamp
 from .interface import SQLAlchemy, db_transaction
+
+__all__ = [
+    "db_transaction",
+    "SQLAlchemy",
+]
 
 # class SQLAlchemy(_SQLAlchemy):
 #    """Store an interface to SQLAlchemy database objects."""
@@ -59,8 +63,7 @@ def init_db():
     if not db_path.is_file():
         current_app.db.initialize(current_app)
         echo_db_info(f"Initialized the database ('{db_path}')")
-        preload_path = current_app.config.get("PRELOAD_DATA_PATH")
-        if preload_path:
+        if preload_path := current_app.config.get("PRELOAD_DATA_PATH"):
             echo_db_info(f"Prepopulated the database using '{preload_path}'")
     else:
         echo_db_info(f"Database exists, using '{db_path}'")

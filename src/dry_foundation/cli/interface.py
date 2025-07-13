@@ -9,7 +9,6 @@ import click
 from flask.cli import FlaskGroup
 
 from ..database import back_up_db, init_db
-from ..factory import DryFlask
 from .launcher import Launcher
 from .modes import cli_modes
 
@@ -73,9 +72,10 @@ class DryFlaskGroup(FlaskGroup):
         return (
             f"CLI functionality for the {app_name} application.\n"
             "\n"
-            "Built on Flask, this command line interface extends a typical Flask CLI\n"
-            "to include additional commands for launching the application, initializing\n"
-            "the application database, and backing up the application database.\n"
+            "Built on Flask, this command line interface extends a typical Flask CLI "
+            "to include additional commands for launching the application, "
+            "initializing the application database, and backing up the application "
+            "database."
         )
 
     def list_commands(self, ctx):

@@ -4,8 +4,6 @@ from unittest.mock import Mock, call, patch
 
 import pytest
 
-from dry_foundation.database.models import AuthorizedAccessMixin, Model
-
 from testing_helpers import AuthorizedEntry, Entry
 
 
@@ -21,7 +19,7 @@ class TestModels:
             assert getattr(model, field) == mapping[field]
 
     @pytest.mark.parametrize(
-        "mapping, expected_repr_string",
+        ("mapping", "expected_repr_string"),
         [
             [
                 {"x": 2, "y": "test2", "user_id": 1},
@@ -98,6 +96,8 @@ class TestAuthorizedModels:
     @patch("dry_foundation.database.models.g")
     def test_invalid_authorized_model(self, mock_global_namespace, client_context):
         # Test that the model cannot make a selection based on the user
-        with patch.object(AuthorizedEntry, "user_id_model", new=None):
-            with pytest.raises(AttributeError):
-                AuthorizedEntry.select_for_user()
+        with (
+            patch.object(AuthorizedEntry, "user_id_model", new=None),
+            pytest.raises(AttributeError),
+        ):
+            AuthorizedEntry.select_for_user()

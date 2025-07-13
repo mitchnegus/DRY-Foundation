@@ -6,7 +6,7 @@ from flask import Flask
 
 from .cli import interface as cli
 from .config import DevelopmentConfig
-from .config.default_settings import Config, InstanceBasedConfig
+from .config.default_settings import InstanceBasedConfig
 from .database import SQLAlchemy
 
 

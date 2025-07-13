@@ -71,11 +71,7 @@ class AppTestManager:
         registry["app_manager"] = self
 
     def get_app(self):
-        if self.ephemeral_app:
-            app = self.ephemeral_app
-        else:
-            app = self.persistent_app
-        return app
+        return self.ephemeral_app or self.persistent_app
 
     def generate_app(self, test_db_path, **kwargs):
         """

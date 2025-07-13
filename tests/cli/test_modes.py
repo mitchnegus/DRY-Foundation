@@ -1,17 +1,13 @@
 """Tests for the application launch modes."""
 
-import json
 import multiprocessing
 from abc import ABC, abstractmethod
-from unittest.mock import Mock, call, patch
+from unittest.mock import call, patch
 
 import pytest
 
 from dry_foundation.cli.modes import DevelopmentAppMode, LocalAppMode, ProductionAppMode
-from dry_foundation.config import ProductionConfig
 from dry_foundation.factory import DryFlask
-
-from testing_helpers import create_test_app
 
 
 class _TestAppMode(ABC):
@@ -120,7 +116,7 @@ class TestProductionAppMode(_TestAppMode):
         }
 
     @pytest.mark.parametrize(
-        "invalid_kwargs, exception",
+        ("invalid_kwargs", "exception"),
         [
             [
                 {"host": "test.host", "port": "0000", "bind": "test.alt.host:9999"},
@@ -137,7 +133,7 @@ class TestProductionAppMode(_TestAppMode):
 
     @pytest.mark.xfail
     def test_load_config(self):
-        assert False
+        pytest.fail("Not yet implemented...")
 
     def test_load(self, mock_click_context):
         mode = self.mode_cls(mock_click_context, host="test.host", port=1111)

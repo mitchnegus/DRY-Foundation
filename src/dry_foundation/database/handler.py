@@ -11,7 +11,6 @@ from sqlalchemy import select
 from sqlalchemy.exc import ArgumentError, NoResultFound
 from werkzeug.exceptions import abort
 
-from .models import AuthorizedAccessMixin
 from .utils import validate_sort_order
 
 

@@ -1,8 +1,6 @@
 """A module containing objects with various configuration settings."""
 
 import warnings
-from abc import abstractmethod
-from pathlib import Path
 
 from .default_settings import Config, InstanceBasedConfig
 

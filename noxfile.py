@@ -7,6 +7,11 @@ import nox
 
 PACKAGE = "dry_foundation"
 PACKAGE_DIR = Path("src", PACKAGE)
+PYTHON_PROJECT_FILES = [
+    "src/",
+    "tests/",
+    "noxfile.py",
+]
 
 #
 # --- TESTING ---
@@ -52,20 +57,31 @@ def build_docs(session):
 
 
 #
+# --- LINTING ---
+#
+
+LINTING_DEPS = ["ruff==0.12.3"]
+
+
+@nox.session
+def lint(session):
+    session.install(*LINTING_DEPS)
+    session.run("ruff", "check", *PYTHON_PROJECT_FILES)
+
+
+#
 # --- FORMATTING ---
 #
 
 FORMAT_DEPS = ["ruff==0.12.3"]
 PYTHON_FORMAT_FILES = [
-    "src/",
-    "tests/",
-    "noxfile.py",
+    *PYTHON_PROJECT_FILES,
     DOCS_SRC / "conf.py",
 ]
 
 
-@nox.session
-def format(session):
+@nox.session(name="format")
+def format_code(session):
     session.install(*FORMAT_DEPS)
     # ruff does not sort imports by default
     # (https://docs.astral.sh/ruff/formatter/#sorting-imports)

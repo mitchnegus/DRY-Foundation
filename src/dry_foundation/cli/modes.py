@@ -9,7 +9,6 @@ from flask.cli import run_command
 from gunicorn.app.base import BaseApplication
 
 from ..config import DevelopmentConfig, ProductionConfig
-from ..config.default_settings import Config
 from ..factory import DryFlask
 
 
@@ -215,11 +214,11 @@ class ProductionAppMode(CustomCLIAppMode, BaseApplication):
 def _get_all_subclasses(cls):
     # Get all subclasses (recursively) of the given class
     direct_subclasses = set(cls.__subclasses__())
-    subsubclasses = set(
+    subsubclasses = {
         subsubcls
         for subcls in direct_subclasses
         for subsubcls in _get_all_subclasses(subcls)
-    )
+    }
     return direct_subclasses.union(subsubclasses)
 
 

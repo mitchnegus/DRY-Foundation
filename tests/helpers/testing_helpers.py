@@ -1,10 +1,9 @@
 """Helper objects to improve the modularity of tests."""
 
 from sqlalchemy import ForeignKey, Integer, String, select
-from sqlalchemy.orm import DeclarativeBase, mapped_column, relationship
+from sqlalchemy.orm import mapped_column, relationship
 
 from dry_foundation import DryFlask, Factory
-from dry_foundation.database.interface import SQLAlchemy
 from dry_foundation.database.models import AuthorizedAccessMixin, Model, View
 
 

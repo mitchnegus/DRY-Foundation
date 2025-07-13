@@ -2,10 +2,6 @@
 
 from unittest.mock import Mock, patch
 
-from flask import current_app
-
-from dry_foundation.cli.interface import back_up_db_command, init_db_command
-
 
 def test_get_close_db(app):
     # Access the database
@@ -18,7 +14,7 @@ def test_get_close_db(app):
 
 def test_database(app):
     table_names = ("entries", "authorized_entries", "alt_authorized_entries")
-    assert all(name in app.db.tables.keys() for name in table_names)
+    assert all(name in app.db.tables for name in table_names)
 
 
 @patch(

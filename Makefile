@@ -41,6 +41,12 @@ test : env
 	@$(NOX) -s test
 
 
+## lint		: Lint the package source code
+.PHONY: lint
+lint: env
+	@$(NOX) -s lint
+
+
 ## format		: Format the package source code
 .PHONY: format
 format : env
