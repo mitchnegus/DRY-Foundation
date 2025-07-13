@@ -3,17 +3,11 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-DRY Foundation
-==============
+########################
+Keep Your Foundation DRY
+########################
 
 Tools and components for building customized and consistent small-scale Flask applications.
-
-.. toctree::
-   :maxdepth: 2
-   :caption: Contents:
-
-   Home <self>
-   API <api/modules>
 
 .. include:: README.md
    :parser: myst_parser.sphinx_

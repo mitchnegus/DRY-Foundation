@@ -32,9 +32,7 @@ $(ENV)/.touchfile : $(REQS) pyproject.toml
 ## docs 		: Build documentation
 .PHONY: docs
 docs : env
-	@rm -rf $(DOCS_SRC_API)
-	@$(ENV_BIN)/sphinx-apidoc -f -o $(DOCS_SRC_API) $(PACKAGE_DIR)
-	@$(ENV_BIN)/sphinx-build -b html $(DOCS_SRC) $(DOCS_HTML)
+	@$(NOX) -s docs
 
 
 ## test		: Run tests

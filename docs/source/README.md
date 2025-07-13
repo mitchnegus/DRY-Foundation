@@ -1,5 +1,7 @@
 # DRY Foundation
 
+<img src="img/logo/dry-logo.png" alt="DRY Foundation logo" />
+
 Tools and components for building customized and consistent small-scale Flask applications.
 
 
@@ -22,7 +24,7 @@ This package takes a different approach, and provides tools to customize the CLI
 Configurations are predefined (for production, development, and testing), and can be loaded by specifying a launch mode:
 
 - **Production Mode:** Launch an app for production use, drawing from a production-style configuration.
-- **Local Mode:** Launch an app for local use, using the Flask development server but still relying on a production-style configuration
+- **Local Mode:** Launch an app for local use, using the Flask development server but still relying on a production-style configuration.
 - **Development Mode:** Launch an app for development, with default debugging features and using a development style configuration.
 
 A testing configuration is also built-in to provide test-specific configuration settings.
@@ -34,6 +36,7 @@ One element of an application foundation is the testing infrastructure.
 [Flask gives some guidance in the current edition of their documentation](https://flask.palletsprojects.com/en/2.3.x/tutorial/tests/#setup-and-fixtures), and it suggests creating a temporary SQLite database for each test.
 This is perfectly fine for simple applications, but adds substantial overhead (and test time) to applications with many tests, especially for those where the database contains some preloaded information.
 Instead, it would be preferable to create and use one temporary database instance for the majority of tests that only require read-access to the database, and then only create additional test databases for the tests that modify the state of the database (e.g., SQLAlchemy transactions).[^mocking]
+
 _DRY Foundation_ provides the infrastructure to create databases in both of these cases: a "persistent" database for read-only tests, and "ephemeral" databases for each transaction).
 The persistent test database is used by default, but a `transaction_lifetime` decorator can be used to indicate that a given test should use an ephemeral copy.
 
@@ -54,7 +57,7 @@ If you happen to read this and think "This dude's dumb; why on Earth didn't he u
 
 ## Installation
 
-_DRY Foundation_ is registered on the [Python Package Index (PyPI)](https://pypi.org/project/fuisce) for easy installation.
+_DRY Foundation_ is registered on the [Python Package Index (PyPI)](https://pypi.org/project/...) for easy installation.
 To install the package, simply run
 
 ```
@@ -69,7 +72,7 @@ The package requires a recent version of Python (3.10+).
 The app has lots of tools, but the basics can be used just as drop-in replacements for the standard `Flask` object and application factory.
 
 ```python
-# DRY-Application:  `dry_application/__init__.py`
+# DRY Application:  `dry_application/__init__.py`
 
 from dry_foundation import DryFlask, Factory
 
@@ -97,4 +100,4 @@ It is fully open-source, and while you are more than welcome to fork, add, modif
 
 ## Changes
 
-Changes between versions are tracked in the [changelog](CHANGELOG.md).
+Changes between versions are tracked in the [changelog](./CHANGELOG.md).

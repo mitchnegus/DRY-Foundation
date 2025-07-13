@@ -1,5 +1,6 @@
 """The top-level Nox specification."""
 
+import shutil
 from pathlib import Path
 
 import nox
@@ -32,6 +33,25 @@ def test_package(session):
 
 
 #
+# --- DOCS ---
+#
+
+DOCS_DIR = Path("docs")
+DOCS_SRC = DOCS_DIR / "source"
+DOCS_SRC_API = DOCS_SRC / "api"
+DOCS_BUILD = DOCS_DIR / "build"
+DOCS_HTML = DOCS_BUILD / "html"
+
+
+@nox.session(name="docs")
+def build_docs(session):
+    session.install("-e", ".[docs]")
+    shutil.rmtree(DOCS_SRC_API)
+    session.run("sphinx-apidoc", "-f", "-o", DOCS_SRC_API, PACKAGE_DIR)
+    session.run("sphinx-build", "-b", "html", DOCS_SRC, DOCS_HTML)
+
+
+#
 # --- FORMATTING ---
 #
 
@@ -39,7 +59,12 @@ FORMAT_DEPS = [
     "black==25.1.0",
     "isort==6.0.1",
 ]
-PYTHON_FORMAT_FILES = ["src/", "tests/", "noxfile.py"]
+PYTHON_FORMAT_FILES = [
+    "src/",
+    "tests/",
+    "noxfile.py",
+    DOCS_SRC / "conf.py",
+]
 
 
 @nox.session
@@ -61,24 +86,6 @@ def check_format(session):
     session.install(*FORMAT_DEPS)
     session.run("isort", "--check", *PYTHON_FORMAT_FILES)
     session.run("black", "--check", *PYTHON_FORMAT_FILES)
-
-
-#
-# --- DOCS ---
-#
-
-DOCS_DIR = Path("docs")
-DOCS_SRC = DOCS_DIR / "source"
-DOCS_SRC_API = DOCS_SRC / "api"
-DOCS_BUILD = DOCS_DIR / "build"
-DOCS_HTML = DOCS_BUILD / "html"
-
-
-@nox.session(name="docs")
-def build_docs(session):
-    session.install("-e", ".[docs]")
-    session.run("sphinx-apidoc", "-f", "-o", DOCS_SRC_API, PACKAGE_DIR)
-    session.run("sphinx-build", "-b", "html", DOCS_SRC, DOCS_HTML)
 
 
 #
