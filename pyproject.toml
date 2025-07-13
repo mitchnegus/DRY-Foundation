@@ -41,12 +41,17 @@ dry_foundation = "dry_foundation.testing.manager"
 
 [project.optional-dependencies]
 dev = [
-  "nox~=2025.5.1",
-  "dry_foundation[test]",
+  'nox~=2025.5.1',
+  'dry_foundation[docs,test]',
+]
+docs = [
+  'furo',
+  'sphinx',
+  'myst-parser',
 ]
 test = [
-  "coverage==7.9.2",
-  "pytest==8.4.1",
+  'coverage==7.9.2',
+  'pytest==8.4.1',
 ]
 
 [tool.hatch.version]
