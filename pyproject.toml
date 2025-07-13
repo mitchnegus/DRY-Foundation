@@ -31,10 +31,10 @@ classifiers = [
 dynamic = ['readme', 'version']
 
 [project.urls]
-Download = 'https://pypi.org/project/...'
-Homepage = 'https://github.com/mitchnegus/...'
-Repository = 'https://github.com/mitchnegus/...'
-Changelog = 'https://github.com/mitchnegus/.../blob/main/CHANGELOG.md'
+#Download = 'https://pypi.org/project/...'
+Homepage = 'https://github.com/mitchnegus/DRY-Foundation'
+Repository = 'https://github.com/mitchnegus/DRY-Foundation'
+Changelog = 'https://github.com/mitchnegus/DRY-Foundation/blob/main/CHANGELOG.md'
 
 # Set DRY Foundation as a pytest plugin to use the `AppTestManager` functionality
 [project.entry-points.pytest11]
