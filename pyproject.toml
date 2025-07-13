@@ -9,7 +9,7 @@ authors = [
 ]
 description = 'Tools and components for building customized and consistent small-scale Flask applications.'
 license = { text = 'GNU GPLv3' }
-requires-python = '>=3.10'
+requires-python = '>=3.10,<=3.12'
 dependencies = [
   'Flask>=2.2.2',
   'gunicorn>=23.0.0',
@@ -45,9 +45,8 @@ dev = [
   "dry_foundation[test]",
 ]
 test = [
-  "coverage==7.6.10",
-  "pytest==8.3.4",
-  #"pytest-cov==6.0.0",
+  "coverage==7.9.2",
+  "pytest==8.4.1",
 ]
 
 [tool.hatch.version]

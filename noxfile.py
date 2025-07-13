@@ -2,35 +2,22 @@
 
 import nox
 
-# env_list = ['clean', '3.9', '3.10', '3.11', '3.12', '3.13']
-#
-# [env_run_base]
-# description = 'Run tests for the package'
-# extras = ['test']
-# commands = [
-#  ['coverage', 'run', '--source={env_site_packages_dir}/dry_foundation', '-m', 'pytest'],
-#  ['coverage', { replace = 'posargs', default = ['report'], extend = true }],
-# ]
-#
-# [env.clean]
-# deps = ['coverage[toml]']
-# skip_install = true
-# commands = [ ['coverage', 'erase'] ]
-
 #
 # --- TESTING ---
 #
 
-TESTING_DEPS = [
-    "coverage[toml]==7.6.10",
-    "pytest==8.3.4",
-]
-PYTHON_VERSIONS = ["3.10"]  # , "3.11", "3.12", "3.13"]
+PYTHON_VERSIONS = ["3.10", "3.11", "3.12"]
 
 
-@nox.session(name="test", python=PYTHON_VERSIONS)
+@nox.session(name="clean-coverage")
+def clean_coverage(session):
+    session.install("coverage")
+    session.run("coverage", "erase")
+
+
+@nox.session(name="test", python=PYTHON_VERSIONS, requires=["clean-coverage"])
 def test_package(session):
-    session.install(*TESTING_DEPS, "-e", ".")
+    session.install("-e", ".[test]")
     # session.run("coverage", "run", "--source=src/dry_foundation", "-m", "pytest")
     try:
         session.run("coverage", "run", "-m", "pytest")
@@ -63,6 +50,13 @@ def diff_format(session):
     session.install(*FORMAT_DEPS)
     session.run("isort", "--diff", "--color", *PYTHON_FORMAT_FILES)
     session.run("black", "--diff", "--color", *PYTHON_FORMAT_FILES)
+
+
+@nox.session(name="format-check")
+def check_format(session):
+    session.install(*FORMAT_DEPS)
+    session.run("isort", "--check", *PYTHON_FORMAT_FILES)
+    session.run("black", "--check", *PYTHON_FORMAT_FILES)
 
 
 #
