@@ -55,10 +55,7 @@ def build_docs(session):
 # --- FORMATTING ---
 #
 
-FORMAT_DEPS = [
-    "black==25.1.0",
-    "isort==6.0.1",
-]
+FORMAT_DEPS = ["ruff==0.12.3"]
 PYTHON_FORMAT_FILES = [
     "src/",
     "tests/",
@@ -70,22 +67,24 @@ PYTHON_FORMAT_FILES = [
 @nox.session
 def format(session):
     session.install(*FORMAT_DEPS)
-    session.run("isort", *PYTHON_FORMAT_FILES)
-    session.run("black", *PYTHON_FORMAT_FILES)
+    # ruff does not sort imports by default
+    # (https://docs.astral.sh/ruff/formatter/#sorting-imports)
+    session.run("ruff", "check", "--select", "I", "--fix")
+    session.run("ruff", "format", *PYTHON_FORMAT_FILES)
 
 
 @nox.session(name="format-diff")
 def diff_format(session):
     session.install(*FORMAT_DEPS)
-    session.run("isort", "--diff", "--color", *PYTHON_FORMAT_FILES)
-    session.run("black", "--diff", "--color", *PYTHON_FORMAT_FILES)
+    session.run("ruff", "format", "--diff", *PYTHON_FORMAT_FILES)
+    session.run("ruff", "format", "--diff", *PYTHON_FORMAT_FILES)
 
 
 @nox.session(name="format-check")
 def check_format(session):
     session.install(*FORMAT_DEPS)
-    session.run("isort", "--check", *PYTHON_FORMAT_FILES)
-    session.run("black", "--check", *PYTHON_FORMAT_FILES)
+    session.run("ruff", "format", "--check", *PYTHON_FORMAT_FILES)
+    session.run("ruff", "format", "--check", *PYTHON_FORMAT_FILES)
 
 
 #

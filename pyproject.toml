@@ -97,11 +97,10 @@ exclude_also = [
   'pass',
 ]
 
-[tool.black]
-force-exclude = 'src/dry_foundation/_version.py'
+[tool.ruff.format]
+exclude = [
+  'src/dry_foundation/_version.py',
+]
 
-[tool.isort]
-profile = 'black'
-src_paths = ['src/dry_foundation', 'tests']
-skip = ['src/dry_foundation/_version.py']
-known_local_folder = ["testing_helpers"]
+[tool.ruff.lint.isort]
+known-local-folder = ["testing_helpers"]

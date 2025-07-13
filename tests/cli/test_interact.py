@@ -7,6 +7,7 @@ from dry_foundation.cli.interface import DryFlaskGroup, interact
 
 
 class TestDryFlaskGroup:
+    """Tests for the ``DryFlaskGroup`` object."""
 
     def test_initialization(self):
         group = DryFlaskGroup("test")

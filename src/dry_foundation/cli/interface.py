@@ -2,6 +2,7 @@
 """
 Elements for constructing scripts (entry points) that will launch the application.
 """
+
 import os
 
 import click

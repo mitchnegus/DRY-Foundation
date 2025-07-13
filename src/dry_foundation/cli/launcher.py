@@ -2,6 +2,7 @@
 """
 Define objects for launching the application.
 """
+
 import json
 import os
 import time

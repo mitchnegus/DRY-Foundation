@@ -17,6 +17,7 @@ def mock_browser():
 
 
 class TestLauncher:
+    """Tests for the ``Launcher`` object."""
 
     @patch("dry_foundation.cli.launcher.init_db")
     def test_launch(self, mock_init_method, mock_click_context):

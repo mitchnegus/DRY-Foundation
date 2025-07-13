@@ -15,6 +15,7 @@ from testing_helpers import create_test_app
 
 
 class _TestAppMode(ABC):
+    """Abstract base class for testing launch modes."""
 
     @property
     @abstractmethod
@@ -28,6 +29,8 @@ class _TestAppMode(ABC):
 
 
 class TestLocalAppMode(_TestAppMode):
+    """Tests for local mode."""
+
     mode_cls = LocalAppMode
     mode_default_port = 5001
     mode_debugging = False
@@ -86,12 +89,16 @@ class TestLocalAppMode(_TestAppMode):
 
 
 class TestDevelopmentAppMode(TestLocalAppMode):
+    """Tests for development mode."""
+
     mode_cls = DevelopmentAppMode
     mode_default_port = 5000
     mode_debugging = True
 
 
 class TestProductionAppMode(_TestAppMode):
+    """Tests for production mode."""
+
     mode_cls = ProductionAppMode
     mode_default_port = 8000
     expected_worker_count = (multiprocessing.cpu_count() * 2) + 1
