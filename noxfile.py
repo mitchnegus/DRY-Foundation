@@ -80,6 +80,7 @@ def build_docs(session):
     session.run("sphinx-apidoc", "-f", "-o", DOCS_SRC_API, PACKAGE_DIR)
     session.run("sphinx-build", "-b", "html", DOCS_SRC, DOCS_HTML)
 
+
 #
 # --- PACKAGING ---
 #

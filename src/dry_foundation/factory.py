@@ -7,6 +7,7 @@ from flask import Flask
 from .cli import interface as cli
 from .config import DevelopmentConfig
 from .config.default_settings import Config, InstanceBasedConfig
+from .database import SQLAlchemy
 
 
 class DryFlask(Flask):
@@ -55,16 +56,29 @@ class Factory:
     A decorator for application factories that accesses ``DryFlask`` capabilities.
     """
 
-    def __init__(self, db_interface):
-        # Delegate information to applications/configurations before the app is created
-        self._db_interface_cls = db_interface
+    default_db_interface = SQLAlchemy
 
-    def __call__(self, factory_func):
+    def __init__(self, factory_func=None, /, db_interface=None):
+        # The factory function **must** be positional only to identify if this is a
+        # decorator with or without arguments
+        self._factory_func = factory_func
+        self._db_interface_cls = db_interface or self.default_db_interface
 
-        @functools.wraps(factory_func)
-        def _wrapper(*args, **kwargs):
-            app = factory_func(*args, **kwargs)
-            self._db_interface_cls.select_interface(app)
-            return app
+    def __call__(self, *args, **kwargs):
+        if self._factory_func is not None:
+            # Decorator without arguments: return the call to the wrapped function
+            return self._call_factory(*args, **kwargs)
+
+        # Decorator with arguments: return the wrapped function
+        self._factory_func = args[0]
+
+        @functools.wraps(self._factory_func)
+        def _wrapper(*_args, **_kwargs):
+            return self._call_factory(*_args, **_kwargs)
 
         return _wrapper
+
+    def _call_factory(self, *args, **kwargs):
+        app = self._factory_func(*args, **kwargs)
+        self._db_interface_cls.select_interface(app)
+        return app

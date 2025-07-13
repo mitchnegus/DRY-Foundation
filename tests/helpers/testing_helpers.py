@@ -8,7 +8,7 @@ from dry_foundation.database.interface import SQLAlchemy
 from dry_foundation.database.models import AuthorizedAccessMixin, Model, View
 
 
-@Factory(SQLAlchemy)
+@Factory
 def create_test_app(config=None):
     # Create and configure the test app
     app = DryFlask("test", "Test Application")
