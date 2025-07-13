@@ -7,7 +7,7 @@ PACKAGE_PYTHON_FILES = $(wildcard $(PACKAGE_DIR)/*.py) \
 # Requirements files
 REQS = requirements.txt
 # Package environment (for building and testing)
-ENV = df-env
+ENV = dry-env
 ENV_BIN = $(ENV)/bin
 
 NOX = $(ENV_BIN)/nox

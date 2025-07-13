@@ -43,7 +43,11 @@ class TestLauncher:
     @patch("dry_foundation.cli.launcher.init_db")
     @patch("gunicorn.app.base.BaseApplication.run")
     def test_launcher_invalid_browser_mode(
-        self, mock_gunicorn_run_method, mock_init_method, mock_browser, mock_click_context
+        self,
+        mock_gunicorn_run_method,
+        mock_init_method,
+        mock_browser,
+        mock_click_context,
     ):
         with pytest.raises(RuntimeError):
             Launcher(mock_click_context, ProductionAppMode).launch(use_browser=True)

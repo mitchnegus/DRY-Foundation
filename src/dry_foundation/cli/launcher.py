@@ -2,8 +2,8 @@
 """
 Define objects for launching the application.
 """
-import os
 import json
+import os
 import time
 import webbrowser
 

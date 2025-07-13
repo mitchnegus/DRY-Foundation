@@ -5,7 +5,12 @@ import pytest
 
 from dry_foundation.testing import AppTestManager
 
-from testing_helpers import Entry, create_test_app
+from testing_helpers import (
+    AlternateAuthorizedEntry,
+    AuthorizedEntry,
+    Entry,
+    create_test_app,
+)
 
 
 class DryFoundationAppTestManager(AppTestManager):
@@ -24,6 +29,13 @@ class DryFoundationAppTestManager(AppTestManager):
                 Entry(x=2, y="eleven", user_id=1),
                 Entry(x=3, y="twelve", user_id=1),
                 Entry(x=4, y="twenty", user_id=2),
+                AuthorizedEntry(a=1, b="one", c=1),
+                AuthorizedEntry(a=2, b="two", c=1),
+                AuthorizedEntry(a=3, b="three", c=4),
+                AlternateAuthorizedEntry(p=1, q=1),
+                AlternateAuthorizedEntry(p=2, q=2),
+                AlternateAuthorizedEntry(p=3, q=2),
+                AlternateAuthorizedEntry(p=4, q=3),
             ]
             db.session.add_all(entries)
 

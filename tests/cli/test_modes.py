@@ -122,7 +122,9 @@ class TestProductionAppMode(_TestAppMode):
             [{"port": "0000"}, ValueError],
         ],
     )
-    def test_initialization_invalid(self, mock_click_context, invalid_kwargs, exception):
+    def test_initialization_invalid(
+        self, mock_click_context, invalid_kwargs, exception
+    ):
         with pytest.raises(exception):
             self.mode_cls(mock_click_context, **invalid_kwargs)
 
@@ -137,7 +139,10 @@ class TestProductionAppMode(_TestAppMode):
     @patch("gunicorn.config.Config.set")
     @patch("gunicorn.app.base.BaseApplication.run")
     def test_run(
-        self, mock_gunicorn_run_method, mock_gunicorn_config_set_method, mock_click_context
+        self,
+        mock_gunicorn_run_method,
+        mock_gunicorn_config_set_method,
+        mock_click_context,
     ):
         mode = self.mode_cls(mock_click_context, host="test.host", port=1111)
         mode.run()
@@ -152,7 +157,10 @@ class TestProductionAppMode(_TestAppMode):
     @patch("gunicorn.config.Config.set")
     @patch("gunicorn.app.base.BaseApplication.run")
     def test_run_defaults(
-        self, mock_gunicorn_run_method, mock_gunicorn_config_set_method, mock_click_context
+        self,
+        mock_gunicorn_run_method,
+        mock_gunicorn_config_set_method,
+        mock_click_context,
     ):
         mode = self.mode_cls(mock_click_context)
         mode.run()
