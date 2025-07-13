@@ -11,7 +11,18 @@ from .database import SQLAlchemy
 
 
 class DryFlask(Flask):
-    """A customized, pre-configured (default instance relative) ``Flask`` object."""
+    """
+    A customized, pre-configured (default instance relative) ``Flask`` object.
+
+    Typically, the Flask application object can load a configuration.
+    The ``DryFlask`` object provided by this package customizes the
+    Flask application object such that it falls back to using a default
+    configuration type (generally the ``DevelopmentConfig`` when not
+    otherwise specified). It also accepts an application name distinct
+    from the ``import_name`` that the ``Flask`` object requires which
+    can be used for displays and outputs. If not provided, the
+    application defaults to using the ``import_name`` instead.
+    """
 
     default_config_type = DevelopmentConfig
     cli_type = None
