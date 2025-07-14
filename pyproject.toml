@@ -34,7 +34,7 @@ dynamic = ['readme', 'version']
 Download = 'https://pypi.org/project/dry-foundation/'
 Homepage = 'https://github.com/mitchnegus/DRY-Foundation'
 Repository = 'https://github.com/mitchnegus/DRY-Foundation'
-Changelog = 'https://github.com/mitchnegus/DRY-Foundation/blob/main/CHANGELOG.md'
+Changelog = 'https://github.com/mitchnegus/DRY-Foundation/blob/main/docs/source/CHANGELOG.md'
 
 # Set DRY Foundation as a pytest plugin to use the `AppTestManager` functionality
 [project.entry-points.pytest11]
