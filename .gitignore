@@ -1,4 +1,5 @@
 *.swp
+*vimrc*.vim
 .ipynb_checkpoints
 
 # Byte-compiled / optimized / DLL files
@@ -75,3 +76,6 @@ dry-env/
 
 # Hatch-generated version file
 src/dry_foundation/_version.py
+
+# PyPI Token
+.TOKEN
