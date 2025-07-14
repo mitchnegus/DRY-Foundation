@@ -121,4 +121,6 @@ def build_package(session):
 @nox.session(name="publish")
 def publish_package(session):
     session.install(*PACKAGING_DEPS)
-    session.run("hatch", "publish")
+    with open(".TOKEN") as token_file:
+        token = token_file.read()
+    session.run("hatch", "publish", "--user", "__token__", "--auth", token)

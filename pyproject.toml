@@ -31,7 +31,7 @@ classifiers = [
 dynamic = ['readme', 'version']
 
 [project.urls]
-#Download = 'https://pypi.org/project/...'
+Download = 'https://pypi.org/project/dry-foundation/'
 Homepage = 'https://github.com/mitchnegus/DRY-Foundation'
 Repository = 'https://github.com/mitchnegus/DRY-Foundation'
 Changelog = 'https://github.com/mitchnegus/DRY-Foundation/blob/main/CHANGELOG.md'
@@ -73,11 +73,11 @@ path = 'README.md'
 
 [[tool.hatch.metadata.hooks.fancy-pypi-readme.substitutions]]
 pattern = 'src="((?!https?:\/\/)\S+?)"'
-replacement = 'src="https://raw.githubusercontent.com/mitchnegus/dry_foundations/main/\1"'
+replacement = 'src="https://raw.githubusercontent.com/mitchnegus/dry-foundation/main/\1"'
 
 [[tool.hatch.metadata.hooks.fancy-pypi-readme.substitutions]]
 pattern = '\[(.+?)\]\(((?!https?://)\S+?)\)'
-replacement = '[\1](https://github.com/mitchnegus/dry_foundations/blob/main/\g<2>)'
+replacement = '[\1](https://github.com/mitchnegus/dry-foundation/blob/main/\g<2>)'
 
 [tool.pytest.ini_options]
 addopts = [
