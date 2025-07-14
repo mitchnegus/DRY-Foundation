@@ -9,3 +9,7 @@
 ### 1.0.1
 
 - Extend the Python version range to include 3.13
+
+### 1.0.2
+
+- Catch errors where the application factory function may not exist

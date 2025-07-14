@@ -80,9 +80,8 @@ class CustomCLIAppMode(ABC):
         # to ensure it is always called.
         # `flask.cli`:
         #     https://github.com/pallets/flask/blob/3.0.3/src/flask/cli.py#L328
-        self._context.obj.create_app = partial(
-            self._context.obj.create_app, config=config
-        )
+        if factory_func := self._context.obj.create_app:
+            self._context.obj.create_app = partial(factory_func, config=config)
         return self._context.obj.load_app()
 
 

@@ -63,7 +63,6 @@ class SQLAlchemy:
         echo_engine = self.echo_engine if echo_engine is None else echo_engine
         # Create the engine using the customodatabase URL
         db_url = URL.create(drivername=f"{DIALECT}+{DBAPI}", database=str(db_path))
-        # db_url = f"{DIALECT}+{DBAPI}:///{db_path}"
         self.engine = create_engine(db_url, echo=echo_engine)
         # Use a session factory to generate sessions
         session_factory = sessionmaker(
