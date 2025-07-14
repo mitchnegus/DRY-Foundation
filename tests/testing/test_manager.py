@@ -6,7 +6,9 @@ from dry_foundation.testing import transaction_lifetime
 
 
 class TestAppTestManager:
-    ephemeral_app_ids = []
+    """Tests for the ``AppTestManager`` object."""
+
+    ephemeral_apps = []
 
     def test_nontransaction(self, app_test_manager, app):
         assert app is app_test_manager.persistent_app
@@ -17,5 +19,5 @@ class TestAppTestManager:
     def test_transaction(self, app_test_manager, app, execution_count):
         assert app is not app_test_manager.persistent_app
         assert app is app_test_manager.ephemeral_app
-        assert id(app) not in self.ephemeral_app_ids
-        self.ephemeral_app_ids.append(id(app))
+        assert app not in self.ephemeral_apps
+        self.ephemeral_apps.append(app)
