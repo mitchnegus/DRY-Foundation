@@ -176,6 +176,7 @@ class ProductionAppMode(CustomCLIAppMode, BaseApplication):
         self.options = options
         self.options["bind"] = self._determine_binding(options.get("bind"))
         self.options.setdefault("workers", self._default_worker_count)
+        self.options.setdefault("worker_class", "gthread")
         super().__init__(context, config=config)
 
     def _determine_binding(self, bind_option):

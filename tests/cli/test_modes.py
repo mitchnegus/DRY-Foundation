@@ -105,6 +105,7 @@ class TestProductionAppMode(_TestAppMode):
         assert mode.options == {
             "bind": "test.host:1111",
             "workers": self.expected_worker_count,
+            "worker_class": "gthread",
         }
 
     def test_initialization_via_bind(self, mock_click_context):
@@ -113,6 +114,7 @@ class TestProductionAppMode(_TestAppMode):
         assert mode.options == {
             "bind": "test.host:1111",
             "workers": self.expected_worker_count,
+            "worker_class": "gthread",
         }
 
     @pytest.mark.parametrize(
@@ -154,6 +156,7 @@ class TestProductionAppMode(_TestAppMode):
             [
                 call("bind", "test.host:1111"),
                 call("workers", self.expected_worker_count),
+                call("worker_class", "gthread"),
             ]
         )
 
@@ -169,5 +172,8 @@ class TestProductionAppMode(_TestAppMode):
         mode.run()
         mock_gunicorn_run_method.assert_called_once()
         mock_gunicorn_config_set_method.assert_has_calls(
-            [call("workers", self.expected_worker_count)]
+            [
+                call("workers", self.expected_worker_count),
+                call("worker_class", "gthread"),
+            ]
         )
