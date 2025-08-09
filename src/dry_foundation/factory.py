@@ -65,14 +65,26 @@ class DryFlask(Flask):
 class Factory:
     """
     A decorator for application factories that accesses ``DryFlask`` capabilities.
+
+    Parameters
+    ----------
+    factory_func : callable
+        An application factory function (e.g., `create_app`). This is
+        typically the function wrapped by the `@Factory` decorator.
+    db_interace : object, optional
+        The interface to use to access the application database.
+    echo_engine : bool, optional
+        A flag passed to the interface's engine indicating if output
+        should be echoed. The default is `False`.
     """
 
     default_db_interface = SQLAlchemy
 
-    def __init__(self, factory_func=None, /, db_interface=None):
+    def __init__(self, factory_func=None, /, db_interface=None, echo_engine=False):
         # The factory function **must** be positional only to identify if this is a
         # decorator with or without arguments
         self._factory_func = factory_func
+        self._echo_engine = echo_engine
         self._db_interface_cls = db_interface or self.default_db_interface
 
     def __call__(self, *args, **kwargs):
@@ -91,5 +103,5 @@ class Factory:
 
     def _call_factory(self, *args, **kwargs):
         app = self._factory_func(*args, **kwargs)
-        self._db_interface_cls.select_interface(app)
+        self._db_interface_cls.select_interface(app, echo_engine=self._echo_engine)
         return app

@@ -29,7 +29,7 @@ class SQLAlchemy:
 
     Parameters
     ----------
-    echo_engine : bool
+    echo_engine : bool, optional
         A flag passed to the interface's engine indicating if output
         should be echoed. The default is `False`.
     """
@@ -104,22 +104,24 @@ class SQLAlchemy:
         cls.default_interface = cls(*args, **kwargs)
 
     @classmethod
-    def select_interface(cls, app):
+    def select_interface(cls, app, echo_engine=False):
         """
-        A decorator to choose the database interface.
+        Choose the database interface.
 
-        OUTDATED
-        This decorator wraps an app factory function to determine
-        whether a new interface should be created (e.g., during testing)
-        or an existing (default) interface previously instantiated by
-        the application should be used instead. This selector assumes
-        that the path to the local database instance will be provided by
-        the app's configuration.
+        Assign a database interface to the given application. This will
+        either create a new interface (e.g., during testing) and assign
+        it to the application object or assign an existing (default)
+        interface previously instantiated by the application. This
+        selector assumes that the path to the local database instance
+        will be provided by the app's configuration.
 
         Parameters
         ----------
         app_factory_func : callable
             The Flask app factory function.
+        echo_engine : bool, optional
+            A flag passed to the interface's engine indicating if output
+            should be echoed. The default is `False`.
 
         Returns
         -------
@@ -138,7 +140,7 @@ class SQLAlchemy:
                 *app.config.get("DATABASE_INTERFACE_ARGS", []),
                 **app.config.get("DATABASE_INTERFACE_KWARGS", {}),
             )
-        app.db.setup_engine(db_path=app.config["DATABASE"])
+        app.db.setup_engine(db_path=app.config["DATABASE"], echo_engine=echo_engine)
         # Establish behavior for closing the database
         app.teardown_appcontext(app.db.close)
         # If testing, the database still needs to be initialized/prepopulated

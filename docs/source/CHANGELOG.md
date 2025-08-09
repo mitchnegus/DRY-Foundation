@@ -13,3 +13,7 @@
 ### 1.0.2
 
 - Catch errors where the application factory function may not exist
+
+### 1.1.0 (in progress)
+
+- Allow the `Factory` to accept database interface parameters
