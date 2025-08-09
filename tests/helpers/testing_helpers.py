@@ -1,7 +1,7 @@
 """Helper objects to improve the modularity of tests."""
 
-from sqlalchemy import ForeignKey, Integer, String, select
-from sqlalchemy.orm import mapped_column, relationship
+from sqlalchemy import ForeignKey, select
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from dry_foundation import DryFlask, Factory
 from dry_foundation.database.models import AuthorizedAccessMixin, Model, View
@@ -18,14 +18,12 @@ def create_test_app(config=None):
 class Entry(Model):
     __tablename__ = "entries"
     # Columns
-    x = mapped_column(Integer, primary_key=True)
-    y = mapped_column(String, nullable=False)
-    user_id = mapped_column(Integer, nullable=False)
+    x: Mapped[int] = mapped_column(primary_key=True)
+    y: Mapped[str]
+    user_id: Mapped[int]
     # Relationships
-    authorized_entries = relationship(
-        "AuthorizedEntry",
-        back_populates="entry",
-        cascade="all, delete",
+    authorized_entries: Mapped[list["AuthorizedEntry"]] = relationship(
+        back_populates="entry", cascade="all, delete-orphan"
     )
 
 
@@ -33,15 +31,13 @@ class AuthorizedEntry(AuthorizedAccessMixin, Model):
     __tablename__ = "authorized_entries"
     _user_id_join_chain = (Entry,)
     # Columns
-    a = mapped_column(Integer, primary_key=True)
-    b = mapped_column(String, nullable=True)
-    c = mapped_column(Integer, ForeignKey("entries.x"), nullable=False)
+    a: Mapped[int] = mapped_column(primary_key=True)
+    b: Mapped[str | None]
+    c: Mapped[int] = mapped_column(ForeignKey("entries.x"))
     # Relationships
-    entry = relationship("Entry", back_populates="authorized_entries")
-    alt_auth_entry = relationship(
-        "AlternateAuthorizedEntry",
-        back_populates="auth_entry",
-        cascade="all, delete",
+    entry: Mapped["Entry"] = relationship(back_populates="authorized_entries")
+    alt_auth_entries: Mapped[list["AlternateAuthorizedEntry"]] = relationship(
+        back_populates="auth_entry", cascade="all, delete-orphan"
     )
 
 
@@ -49,10 +45,12 @@ class AlternateAuthorizedEntry(AuthorizedAccessMixin, Model):
     __tablename__ = "alt_authorized_entries"
     _user_id_join_chain = (AuthorizedEntry, Entry)
     # Columns
-    p = mapped_column(Integer, primary_key=True)
-    q = mapped_column(Integer, ForeignKey("authorized_entries.a"), nullable=False)
+    p: Mapped[int] = mapped_column(primary_key=True)
+    q: Mapped[int] = mapped_column(ForeignKey("authorized_entries.a"))
     # Relationships
-    auth_entry = relationship("AuthorizedEntry", back_populates="alt_auth_entry")
+    auth_entry: Mapped["AuthorizedEntry"] = relationship(
+        back_populates="alt_auth_entries"
+    )
 
 
 class AlternateAuthorizedEntryView(AuthorizedAccessMixin, Model):
@@ -65,4 +63,4 @@ class AlternateAuthorizedEntryView(AuthorizedAccessMixin, Model):
             (AlternateAuthorizedEntry.p + AlternateAuthorizedEntry.q).label("r"),
         ),
     )
-    _user_id_join_chain = (AuthorizedEntry, Entry)
+    _user_id_join_chain = (AlternateAuthorizedEntry, AuthorizedEntry, Entry)

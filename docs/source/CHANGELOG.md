@@ -17,3 +17,4 @@
 ### 1.1.0 (in progress)
 
 - Allow the `Factory` to accept database interface parameters
+- Use type annotations for declarative mappings
