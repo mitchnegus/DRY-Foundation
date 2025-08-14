@@ -60,7 +60,7 @@ def build_docs(session):
 # --- LINTING ---
 #
 
-LINTING_DEPS = ["ruff==0.12.3"]
+LINTING_DEPS = ["ruff==0.12.8"]
 
 
 @nox.session
@@ -73,7 +73,7 @@ def lint(session):
 # --- FORMATTING ---
 #
 
-FORMAT_DEPS = ["ruff==0.12.3"]
+FORMAT_DEPS = ["ruff==0.12.8"]
 PYTHON_FORMAT_FILES = [
     *PYTHON_PROJECT_FILES,
     DOCS_SRC / "conf.py",

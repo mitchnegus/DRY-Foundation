@@ -51,7 +51,8 @@ docs = [
   'myst-parser',
 ]
 test = [
-  'coverage==7.9.2',
+  'coverage==7.10.3',
+  # pytest included in standard dependencies
 ]
 
 [tool.hatch.version]
