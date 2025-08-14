@@ -5,9 +5,11 @@ An interface for connecting to and working with the SQLite database.
 import functools
 
 from flask import current_app
-from sqlalchemy import URL, MetaData, create_engine, event
+from sqlalchemy import URL, create_engine, event
 from sqlalchemy.engine import Engine
 from sqlalchemy.orm import scoped_session, sessionmaker
+
+from .schema import ViewAwareMetaData
 
 DIALECT = "sqlite"
 DBAPI = "pysqlite"
@@ -34,7 +36,7 @@ class SQLAlchemy:
         should be echoed. The default is `False`.
     """
 
-    metadata = MetaData()
+    metadata = ViewAwareMetaData()
     default_interface = None
 
     def __init__(self, echo_engine=False):

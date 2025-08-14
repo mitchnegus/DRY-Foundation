@@ -1,10 +1,12 @@
 """Helper objects to improve the modularity of tests."""
 
-from sqlalchemy import ForeignKey, select
+from sqlalchemy import select
 from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy.schema import ForeignKey, ForeignKeyConstraint
 
 from dry_foundation import DryFlask, Factory
-from dry_foundation.database.models import AuthorizedAccessMixin, Model, View
+from dry_foundation.database.models import AuthorizedAccessMixin, Model
+from dry_foundation.database.schema import View
 
 
 @Factory
@@ -51,9 +53,15 @@ class AlternateAuthorizedEntry(AuthorizedAccessMixin, Model):
     auth_entry: Mapped["AuthorizedEntry"] = relationship(
         back_populates="alt_auth_entries"
     )
+    view: Mapped["AlternateAuthorizedEntryView"] = relationship(
+        back_populates="alt_auth_entry",
+        uselist=False,
+        viewonly=True,
+    )
 
 
 class AlternateAuthorizedEntryView(AuthorizedAccessMixin, Model):
+    # Use the hybrid declarative style for the view
     __table__ = View(
         "alt_authorized_entries_view",
         Model.metadata,
@@ -62,5 +70,11 @@ class AlternateAuthorizedEntryView(AuthorizedAccessMixin, Model):
             AlternateAuthorizedEntry.q.label("q"),
             (AlternateAuthorizedEntry.p + AlternateAuthorizedEntry.q).label("r"),
         ),
+        ForeignKeyConstraint(["p"], ["alt_authorized_entries.p"]),
     )
     _user_id_join_chain = (AlternateAuthorizedEntry, AuthorizedEntry, Entry)
+    # Relationships
+    alt_auth_entry: Mapped["AlternateAuthorizedEntry"] = relationship(
+        back_populates="view",
+        viewonly=True,
+    )

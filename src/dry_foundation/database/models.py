@@ -5,11 +5,9 @@ ORM model definitions corresponding to tables in the SQLite database.
 from datetime import date
 
 from flask import g
-from sqlalchemy import event, inspect, select
+from sqlalchemy import select
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import DeclarativeBase, declared_attr
-from sqlalchemy.sql.expression import TableClause
-from sqlalchemy_views import CreateView as _CreateView
 
 from . import SQLAlchemy
 
@@ -123,44 +121,3 @@ class AuthorizedAccessMixin:
             query = query.join_from(from_arg, target_arg)
             from_arg = target_arg
         return query
-
-
-class CreateView(_CreateView):
-    """A simple wrapper around `sqlalchemy_views.CreateView`."""
-
-    def __init__(self, view, selectable):
-        super().__init__(view, selectable)
-        self.view_name = view.name
-
-
-class View(TableClause):
-    """
-    A view of the database.
-
-    An object providing a view interface on a table. This is a subclass
-    of an `sqlalchemy.sql.expression.TableClause` object.
-
-    Notes
-    -----
-    This object uses a combination of the tooling provided by the
-    `sqlalchemy_views` package (https://pypi.org/project/sqlalchemy-views/)
-    and the SQLAlchemy wiki resource on 'Views'
-    (https://github.com/sqlalchemy/sqlalchemy/wiki/Views).
-    """
-
-    inherit_cache = True
-
-    def __init__(self, name, metadata, selectable):
-        super().__init__(name)
-        self._columns._populate_separate_keys(
-            col._make_proxy(self) for col in selectable.selected_columns
-        )
-        event.listen(
-            metadata,
-            "after_create",
-            CreateView(self, selectable).execute_if(callable_=self._is_not_yet_view),
-        )
-
-    @staticmethod
-    def _is_not_yet_view(ddl, target, connection, **kw):
-        return ddl.view_name not in inspect(connection).get_view_names()

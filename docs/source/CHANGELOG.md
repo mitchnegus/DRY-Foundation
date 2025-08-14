@@ -16,5 +16,6 @@
 
 ### 1.1.0 (in progress)
 
+- Refactor views to enable compatibility with SQLAlchemy 2.0.39
 - Allow the `Factory` to accept database interface parameters
 - Use type annotations for declarative mappings
