@@ -19,19 +19,19 @@ def test_production_config(instance_path):
     assert config.SECRET_KEY == "INSECURE"
 
 
-def test_production_config_default_file(instance_path, default_config_file):
+def test_production_config_default_file(instance_path, default_config_filepath):
     with patch.object(
-        ProductionConfig, "default_config_filepaths", new=[default_config_file]
+        ProductionConfig, "default_config_filepaths", new=[default_config_filepath]
     ):
         config = ProductionConfig(APP_IMPORT_NAME, instance_path)
         assert config.SECRET_KEY == "test secret key"
 
 
 def test_production_config_instance_file_supersedes(
-    instance_path, default_config_file, instance_config_file
+    instance_path, default_config_filepath, instance_config_filepath
 ):
     with patch.object(
-        ProductionConfig, "default_global_config_filepath", new=default_config_file
+        ProductionConfig, "default_global_config_filepath", new=default_config_filepath
     ):
         config = ProductionConfig(APP_IMPORT_NAME, instance_path)
         assert config.SECRET_KEY == "test secret key"

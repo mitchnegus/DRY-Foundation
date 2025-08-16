@@ -90,7 +90,7 @@ def instance_path(tmp_path):
 
 
 @pytest.fixture
-def instance_config_file(instance_path):
+def instance_config_filepath(instance_path):
     config_filepath = instance_path / "test-config.json"
     with config_filepath.open("w") as test_config_file:
         json.dump({"OTHER": "test supersede"}, test_config_file)
@@ -98,7 +98,7 @@ def instance_config_file(instance_path):
 
 
 @pytest.fixture
-def default_config_file(tmp_path):
+def default_config_filepath(tmp_path):
     config_filepath = tmp_path / "test-config.json"
     with config_filepath.open("w") as test_config_file:
         json.dump({"SECRET_KEY": "test secret key", "OTHER": "other"}, test_config_file)

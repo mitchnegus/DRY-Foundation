@@ -77,6 +77,8 @@ class TestingConfig(Config):
     DATABASE_INTERFACE_ARGS = ()
     DATABASE_INTERFACE_KWARGS = {}
     WTF_CSRF_ENABLED = False
+    # Do not use local app configurations when testing
+    config_filepaths = []
 
     def __init__(
         self,
