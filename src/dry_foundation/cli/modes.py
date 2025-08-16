@@ -26,7 +26,9 @@ class CustomCLIAppMode(ABC):
     context : click.core.Context
         The click context that is created by running the application
         from the command line via a click command.
-    config : ...
+    config : Config, optional
+        An application configuration object to be used by this mode
+        during launch.
     *args :
         Positional arguments to be passed to other parent classes
         during instantiation (other than the click context).
@@ -52,12 +54,11 @@ class CustomCLIAppMode(ABC):
     path.
     """
 
-    # def __init__(self, context, config=None):
-    def __init__(self, context, config=None):
+    def __init__(self, context, config=None, *args, **kwargs):
         self._context = context
         DryFlask.set_default_config_type(self.config_type)
         self.application = self._load_application(config)
-        super().__init__()
+        super().__init__(*args, **kwargs)
 
     @property
     @abstractmethod
