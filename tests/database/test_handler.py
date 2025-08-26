@@ -163,6 +163,19 @@ class TestDatabaseHandler(TestHandler):
         self.assert_entries_match(entries, reference_entries)
 
     @pytest.mark.parametrize(
+        ("offset", "limit", "reference_entries"),
+        [
+            [None, None, db_reference[:4]],
+            [1, None, db_reference[1:4]],
+            [1, 2, db_reference[1:3]],
+            [None, 2, db_reference[:2]],
+        ],
+    )
+    def test_get_entries_subset(self, entry_handler, offset, limit, reference_entries):
+        entries = entry_handler.get_entries(offset=offset, limit=limit)
+        self.assert_entries_match(entries, reference_entries)
+
+    @pytest.mark.parametrize(
         ("column_orders", "reference_entries"),
         [
             [None, db_reference[:4]],

@@ -161,7 +161,9 @@ class DatabaseHandlerMixin:
         return query
 
     @classmethod
-    def _customize_entries_query(cls, query, criteria, column_orders):
+    def _customize_entries_query(
+        cls, query, criteria, column_orders, offset=None, limit=None
+    ):
         """
         Customize a query to retrieve entries from the database.
 
@@ -176,6 +178,12 @@ class DatabaseHandlerMixin:
             A mapping between columns and the sorting order to
             apply to those columns (e.g., 'ASC' or 'DESC'). Columns will
             be sorted first to last.
+        offset : int
+            A numerical value indicating the offset number of the
+            returned query results.
+        limit : int
+            A numerical value limiting the returned results to a maximum
+            count.
 
         Returns
         -------
@@ -191,15 +199,18 @@ class DatabaseHandlerMixin:
         """
         column_orders = column_orders if column_orders else {}
         query = cls._sort_query(query, column_orders)
-        query = cls._filter_entries(query, criteria)
-        # query = cls._limit_entries(query, ...)
+        query = cls._filter_entries(query, criteria, offset, limit)
         return query
 
     @staticmethod
-    def _filter_entries(query, criteria):
+    def _filter_entries(query, criteria, offset, limit):
         """Apply filters to a query based on the given criteria."""
         if criteria:
             query = query.filter(*criteria)
+        if offset:
+            query = query.offset(offset)
+        if limit:
+            query = query.limit(limit)
         return query
 
     @classmethod
@@ -231,7 +242,15 @@ class DatabaseHandlerMixin:
         return query
 
     @classmethod
-    def get_entries(cls, entry_ids=None, criteria=None, column_orders=None, **kwargs):
+    def get_entries(
+        cls,
+        entry_ids=None,
+        criteria=None,
+        column_orders=None,
+        offset=None,
+        limit=None,
+        **kwargs,
+    ):
         """
         Retrieve a set of entries from the database.
 
@@ -240,18 +259,25 @@ class DatabaseHandlerMixin:
 
         Parameters
         ----------
-        entry_ids : list
-            A set of primary keys (IDs) to be found.
-        criteria : QueryCriteria
+        entry_ids : list, optional
+            A set of primary keys (IDs) to be found. If left unset,
+            all entries will be returned.
+        criteria : QueryCriteria, optional
             Additional criteria to use when applying filters to the
             query. (Any filters with a value of `None` will be ignored.)
-        column_orders : dict
+        column_orders : dict, optional
             A mapping between column names and the sorting order to
             apply to those columns (e.g., 'ASC' or 'DESC'). Columns will
             be sorted first to last.
+        offset : int, optional
+            A numerical value indicating the offset number of the
+            returned query results.
+        limit : int, optional
+            A numerical value limiting the returned results to a maximum
+            count.
         **kwargs :
             Keyword arguments that may be defined for specific handler
-            subclasses.
+            subclasses, passed directly to the SQL select call.
 
         Returns
         -------
@@ -263,7 +289,9 @@ class DatabaseHandlerMixin:
         criteria.add_match_filter(cls.model, "primary_key_field", entry_ids)
         # Query the database
         query = cls._build_select_query(**kwargs)
-        query = cls._customize_entries_query(query, criteria, column_orders)
+        query = cls._customize_entries_query(
+            query, criteria, column_orders, offset, limit
+        )
         entries = cls._execute_query(query).scalars()
         return entries
 

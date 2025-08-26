@@ -20,3 +20,7 @@
 - Allow the `Factory` to accept database interface parameters
 - Use type annotations for declarative mappings
 - Accommodate systems with pre-defined configurations when testing
+
+### 1.2.0
+
+- Allow handlers to pass subset selectors (e.g., offset and limit keywords) to the SQLAlchemy `Select` object
