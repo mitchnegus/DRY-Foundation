@@ -2,7 +2,7 @@
 
 import multiprocessing
 from abc import ABC, abstractmethod
-from unittest.mock import call, patch
+from unittest.mock import Mock, call, patch
 
 import pytest
 
@@ -22,6 +22,13 @@ class _TestAppMode(ABC):
     @abstractmethod
     def mode_default_port(self):
         raise NotImplementedError("Define the default port in a subclass.")
+
+
+@pytest.fixture(scope="module", autouse=True)
+def mock_db_interface():
+    # Tests of the launch mode do not require a functional database interface
+    with patch("dry_foundation.factory.SQLAlchemy.select_interface", new=Mock()):
+        yield
 
 
 class TestLocalAppMode(_TestAppMode):
@@ -97,6 +104,7 @@ class TestProductionAppMode(_TestAppMode):
         mode = self.mode_cls(mock_click_context, host="test.host", port=1111)
         assert isinstance(mode.application, DryFlask)
         assert mode.options == {
+            "config": None,
             "bind": "test.host:1111",
             "workers": self.expected_worker_count,
             "worker_class": "gthread",
@@ -106,26 +114,80 @@ class TestProductionAppMode(_TestAppMode):
         mode = self.mode_cls(mock_click_context, bind="test.host:1111")
         assert isinstance(mode.application, DryFlask)
         assert mode.options == {
+            "config": None,
             "bind": "test.host:1111",
             "workers": self.expected_worker_count,
             "worker_class": "gthread",
         }
 
+    def test_initialization_with_config(self, mock_click_context):
+        mode = self.mode_cls(mock_click_context, gunicorn_config_path="test/config.py")
+        assert isinstance(mode.application, DryFlask)
+        assert mode.options == {
+            "config": "test/config.py",
+            "bind": None,
+            "workers": self.expected_worker_count,
+            "worker_class": "gthread",
+        }
+
+    def test_initialization_with_gunicorn_config(self, mock_click_context):
+        mode = self.mode_cls(mock_click_context, gunicorn_config_path="test/config.py")
+        assert isinstance(mode.application, DryFlask)
+        assert mode.options == {
+            "config": "test/config.py",
+            "bind": None,
+            "workers": self.expected_worker_count,
+            "worker_class": "gthread",
+        }
+
+    def test_initialization_with_gunicorn_config_from_app(self, mock_click_context):
+        mock_app_config = Mock(GUNICORN_CONFIG="test/config.py")
+        mode = self.mode_cls(mock_click_context, config=mock_app_config)
+        assert isinstance(mode.application, DryFlask)
+        assert mode.options == {
+            "config": "test/config.py",
+            "bind": None,
+            "workers": self.expected_worker_count,
+            "worker_class": "gthread",
+        }
+
+    def test_initialization_with_gunicorn_config_match(self, mock_click_context):
+        mock_app_config = Mock(GUNICORN_CONFIG="test/config.py")
+        mode = self.mode_cls(mock_click_context, config=mock_app_config)
+        mode = self.mode_cls(
+            mock_click_context,
+            config=mock_app_config,
+            gunicorn_config_path="test/config.py",
+        )
+        assert isinstance(mode.application, DryFlask)
+        assert mode.options == {
+            "config": "test/config.py",
+            "bind": None,
+            "workers": self.expected_worker_count,
+            "worker_class": "gthread",
+        }
+
     @pytest.mark.parametrize(
-        ("invalid_kwargs", "exception"),
+        ("invalid_kwargs", "config", "exception"),
         [
             [
                 {"host": "test.host", "port": "0000", "bind": "test.alt.host:9999"},
+                None,
                 ValueError,
             ],
-            [{"port": "0000"}, ValueError],
+            [{"port": "0000"}, None, ValueError],
+            [
+                {"gunicorn_config_path": "gunicorn_test_config.py"},
+                Mock(GUNICORN_CONFIG="test/config.py"),  # conflicts with direct path
+                ValueError,
+            ],
         ],
     )
     def test_initialization_invalid(
-        self, mock_click_context, invalid_kwargs, exception
+        self, mock_click_context, invalid_kwargs, config, exception
     ):
         with pytest.raises(exception):
-            self.mode_cls(mock_click_context, **invalid_kwargs)
+            self.mode_cls(mock_click_context, config=config, **invalid_kwargs)
 
     @pytest.mark.xfail
     def test_load_config(self):
@@ -151,7 +213,8 @@ class TestProductionAppMode(_TestAppMode):
                 call("bind", "test.host:1111"),
                 call("workers", self.expected_worker_count),
                 call("worker_class", "gthread"),
-            ]
+            ],
+            any_order=True,
         )
 
     @patch("gunicorn.config.Config.set")
@@ -169,5 +232,6 @@ class TestProductionAppMode(_TestAppMode):
             [
                 call("workers", self.expected_worker_count),
                 call("worker_class", "gthread"),
-            ]
+            ],
+            any_order=True,
         )

@@ -4,6 +4,7 @@ import multiprocessing
 import os
 from abc import ABC, abstractmethod
 from functools import partial
+from pathlib import Path
 
 from flask.cli import run_command
 from gunicorn.app.base import BaseApplication
@@ -166,7 +167,12 @@ class ProductionAppMode(CustomCLIAppMode, BaseApplication):
     An object for running the application in production mode (via Gunicorn).
 
     This application object will run the Flask application using a
-    Gunicorn server instead of the built-in Python server.
+    Gunicorn server instead of the built-in Python server. Gunicorn
+    settings may be provided directly as option keyword arguments to
+    the constructor, or the path to a Gunicorn configuration file may be
+    specified in the application configuration using the
+    ``"GUNICORN_CONFIG"`` key.
+
 
     Parameters
     ----------
@@ -180,9 +186,15 @@ class ProductionAppMode(CustomCLIAppMode, BaseApplication):
         The hostname to use when launching the application.
     port : int, optional
         The port number to use when launching the application.
+    gunicorn_config_path: os.PathLike, optional
+        The path to a Gunicorn configuration file.
     **options :
         Keyword arguments specifying options used by the Gunicorn
-        base application.
+        base application. Note that the Gunicorn ``config`` option may
+        not be passed as a keyword argument option due to a name
+        conflict with the application configuration. Use the
+        ``gunicorn_config`` option instead.
+
     """
 
     name = "production"
@@ -190,13 +202,38 @@ class ProductionAppMode(CustomCLIAppMode, BaseApplication):
     default_port = 8000  # traditionally 8000 (set by Gunicorn)
     _default_worker_count = (multiprocessing.cpu_count() * 2) + 1
 
-    def __init__(self, context, config=None, host=None, port=None, **options):
+    def __init__(
+        self,
+        context,
+        config=None,
+        host=None,
+        port=None,
+        gunicorn_config_path=None,
+        **options,
+    ):
+        # Gather and set default Gunicorn options
+        options["config"] = self._determine_config(config, gunicorn_config_path)
         options["bind"] = self._determine_binding(host, port, options.pop("bind", None))
         options.setdefault("workers", self._default_worker_count)
         options.setdefault("worker_class", "gthread")
         self.options = options
         base_application_kwargs = {}
         super().__init__(context, config=config, **base_application_kwargs)
+
+    def _determine_config(self, app_config, gunicorn_config_path):
+        app_gunicorn_config_path = (
+            getattr(app_config, "GUNICORN_CONFIG", None) if app_config else None
+        )
+        if gunicorn_config_path and app_gunicorn_config_path:
+            abs_gunicorn_config_path = Path(gunicorn_config_path).absolute()
+            abs_app_gunicorn_config_path = Path(app_gunicorn_config_path).absolute()
+            if abs_gunicorn_config_path != abs_app_gunicorn_config_path:
+                raise ValueError(
+                    "Gunicorn configurations were specified both as a keyword argument "
+                    "and as a key in the application configuration, but they do not "
+                    "match."
+                )
+        return gunicorn_config_path or app_gunicorn_config_path
 
     def _determine_binding(self, host, port, bind_option):
         # Parse any socket binding options

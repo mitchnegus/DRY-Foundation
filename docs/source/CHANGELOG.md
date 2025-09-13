@@ -24,3 +24,7 @@
 ### 1.2.0
 
 - Allow handlers to pass subset selectors (e.g., offset and limit keywords) to the SQLAlchemy `Select` object
+
+### 1.3.0
+
+- Provide constructor arguments that facilitate passing Gunicorn configurations and configuration options to the launch mode
