@@ -34,12 +34,6 @@ class TestLocalAppMode(_TestAppMode):
     def test_initialization(self, mock_click_context):
         self.mode_cls(mock_click_context, host="test.host", port=1111)
 
-    def test_initialization_invalid(self, mock_click_context):
-        with pytest.raises(NotImplementedError):
-            self.mode_cls(
-                mock_click_context, host="test.host", port=1111, option="invalid option"
-            )
-
     @patch("dry_foundation.cli.modes.run_command")
     @patch("os.environ")
     def test_run(self, mock_environment, mock_run_command, mock_click_context):

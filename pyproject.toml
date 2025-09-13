@@ -109,6 +109,7 @@ exclude = [
   'src/dry_foundation/_version.py',
 ]
 ignore = [
+  'E501',  # Line-length errors handled by ruff
   'PIE790',
   'PT007',
   'PT011',

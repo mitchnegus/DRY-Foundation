@@ -29,9 +29,6 @@ class CustomCLIAppMode(ABC):
     config : Config, optional
         An application configuration object to be used by this mode
         during launch.
-    *args :
-        Positional arguments to be passed to other parent classes
-        during instantiation (other than the click context).
     **kwargs :
         Keyword arguments to be passed to other parent classes
         during instantiation (other than the click context).
@@ -54,11 +51,11 @@ class CustomCLIAppMode(ABC):
     path.
     """
 
-    def __init__(self, context, config=None, *args, **kwargs):
+    def __init__(self, context, config=None, **kwargs):
         self._context = context
         DryFlask.set_default_config_type(self.config_type)
         self.application = self._load_application(config)
-        super().__init__(*args, **kwargs)
+        super().__init__(**kwargs)
 
     @property
     @abstractmethod
@@ -95,6 +92,19 @@ class LocalAppMode(CustomCLIAppMode):
     mode. However, it will launch from port 5001 to avoid conflicting
     with other Python servers that may attempt to run on the default
     port 5000.
+
+    Parameters
+    ----------
+    context : click.core.Context
+        The click context that is created by running the application
+        from the command line via a click command.
+    config : Config, optional
+        An application configuration object to be used by this mode
+        during launch.
+    host : str, optional
+        The hostname to use when launching the application.
+    port : int, optional
+        The port number to use when launching the application.
     """
 
     name = "local"
@@ -102,15 +112,10 @@ class LocalAppMode(CustomCLIAppMode):
     default_port = 5001
     _debug = False
 
-    def __init__(self, context, config=None, host=None, port=None, **options):
+    def __init__(self, context, config=None, host=None, port=None):
         """Initialize the application in local mode."""
         super().__init__(context, config=config)
         self._host, self._port = self._determine_server(host, port)
-        if options:
-            raise NotImplementedError(
-                "Unless a configuration is provided, options besides `host` and `port` "
-                f"are not handled in {self.name} mode."
-            )
 
     def _determine_server(self, host, port):
         # Use the Flask application host/port if configured (and not explicitly set)
@@ -162,6 +167,22 @@ class ProductionAppMode(CustomCLIAppMode, BaseApplication):
 
     This application object will run the Flask application using a
     Gunicorn server instead of the built-in Python server.
+
+    Parameters
+    ----------
+    context : click.core.Context
+        The click context that is created by running the application
+        from the command line via a click command.
+    config : Config, optional
+        An application configuration object to be used by this mode
+        during launch.
+    host : str, optional
+        The hostname to use when launching the application.
+    port : int, optional
+        The port number to use when launching the application.
+    **options :
+        Keyword arguments specifying options used by the Gunicorn
+        base application.
     """
 
     name = "production"
@@ -170,27 +191,24 @@ class ProductionAppMode(CustomCLIAppMode, BaseApplication):
     _default_worker_count = (multiprocessing.cpu_count() * 2) + 1
 
     def __init__(self, context, config=None, host=None, port=None, **options):
+        options["bind"] = self._determine_binding(host, port, options.pop("bind", None))
+        options.setdefault("workers", self._default_worker_count)
+        options.setdefault("worker_class", "gthread")
+        self.options = options
+        base_application_kwargs = {}
+        super().__init__(context, config=config, **base_application_kwargs)
+
+    def _determine_binding(self, host, port, bind_option):
+        # Parse any socket binding options
         if port and not host:
             raise ValueError("A host must be specified when the port is given.")
-        self._host = host
-        self._port = port or self.default_port
-        self.options = options
-        self.options["bind"] = self._determine_binding(options.get("bind"))
-        self.options.setdefault("workers", self._default_worker_count)
-        self.options.setdefault("worker_class", "gthread")
-        super().__init__(context, config=config)
-
-    def _determine_binding(self, bind_option):
-        # Parse any socket binding options
-        if self._host and bind_option:
-            raise ValueError(
-                "The `host` may not be specified directly if the `bind` option is used."
-            )
-        if self._host:
-            bind_values = [self._host]
-            if self._port:
-                bind_values.append(str(self._port))
-            bind_option = ":".join(bind_values)
+        if host:
+            if bind_option:
+                raise ValueError(
+                    "The `host` may not be specified directly if the `bind` option is used."
+                )
+            port = port or self.default_port
+            bind_option = ":".join([host, str(port)])
         return bind_option
 
     def load_config(self):
