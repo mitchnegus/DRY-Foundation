@@ -28,3 +28,7 @@
 ### 1.3.0
 
 - Provide constructor arguments that facilitate passing Gunicorn configurations and configuration options to the launch mode
+
+### 1.3.1 (in progress)
+
+- Dispose of engine sessions (closing connections) after test contexts have completed

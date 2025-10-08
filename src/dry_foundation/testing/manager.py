@@ -127,6 +127,7 @@ class AppTestManager:
             app = self.generate_app(test_db.path, *args, **kwargs)
             setattr(self, app_name, app)
             yield
+            app.db.engine.dispose()
             setattr(self, app_name, None)
 
     @staticmethod
