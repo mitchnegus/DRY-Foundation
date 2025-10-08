@@ -32,3 +32,4 @@
 ### 1.3.1 (in progress)
 
 - Dispose of engine sessions (closing connections) after test contexts have completed
+- Fix bug in `noxfile.py` format/linting checks

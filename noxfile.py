@@ -92,14 +92,14 @@ def format_code(session):
 @nox.session(name="format-diff")
 def diff_format(session):
     session.install(*FORMAT_DEPS)
-    session.run("ruff", "format", "--diff", *PYTHON_FORMAT_FILES)
+    session.run("ruff", "check", "--diff", "--select", "I", *PYTHON_FORMAT_FILES)
     session.run("ruff", "format", "--diff", *PYTHON_FORMAT_FILES)
 
 
 @nox.session(name="format-check")
 def check_format(session):
     session.install(*FORMAT_DEPS)
-    session.run("ruff", "format", "--check", *PYTHON_FORMAT_FILES)
+    session.run("ruff", "check", "--select", "I", *PYTHON_FORMAT_FILES)
     session.run("ruff", "format", "--check", *PYTHON_FORMAT_FILES)
 
 
