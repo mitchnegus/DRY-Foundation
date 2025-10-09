@@ -29,7 +29,11 @@
 
 - Provide constructor arguments that facilitate passing Gunicorn configurations and configuration options to the launch mode
 
-### 1.3.1 (in progress)
+### 1.3.1
 
 - Dispose of engine sessions (closing connections) after test contexts have completed
 - Fix bug in `noxfile.py` format/linting checks
+
+### 1.3.2
+
+- Limit click version to (temporarily) handle [updates to default value processing introduced in version 8.3.0](https://github.com/pallets/click/blob/main/CHANGES.rst#version-830)

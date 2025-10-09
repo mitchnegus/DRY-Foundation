@@ -11,6 +11,7 @@ description = 'Tools and components for building customized and consistent small
 license = { text = 'GNU GPLv3' }
 requires-python = '>=3.10'
 dependencies = [
+  'click>=8.2.0,<8.3',
   'Flask>=2.2.2',
   'gunicorn>=23.0.0',
   'SQLAlchemy>=2.0.0',
