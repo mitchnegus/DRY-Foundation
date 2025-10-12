@@ -75,12 +75,13 @@ class Factory:
         The interface to use to access the application database.
     echo_engine : bool, optional
         A flag passed to the interface's engine indicating if output
-        should be echoed. The default is `False`.
+        should be echoed. The default is `None` defaulting the default
+        set by the interface instance.
     """
 
     default_db_interface = SQLAlchemy
 
-    def __init__(self, factory_func=None, /, db_interface=None, echo_engine=False):
+    def __init__(self, factory_func=None, /, db_interface=None, echo_engine=None):
         # The factory function **must** be positional only to identify if this is a
         # decorator with or without arguments
         self._factory_func = factory_func

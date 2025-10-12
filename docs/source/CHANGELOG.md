@@ -37,3 +37,7 @@
 ### 1.3.2
 
 - Limit click version to (temporarily) handle [updates to default value processing introduced in version 8.3.0](https://github.com/pallets/click/blob/main/CHANGES.rst#version-830)
+
+### 1.3.3
+
+- Use `None` rather than `False` as the `echo_engine` keyword argument for database interfaces to better support sensible defaults

@@ -106,7 +106,7 @@ class SQLAlchemy:
         cls.default_interface = cls(*args, **kwargs)
 
     @classmethod
-    def select_interface(cls, app, echo_engine=False):
+    def select_interface(cls, app, echo_engine=None):
         """
         Choose the database interface.
 
@@ -123,7 +123,8 @@ class SQLAlchemy:
             The Flask app factory function.
         echo_engine : bool, optional
             A flag passed to the interface's engine indicating if output
-            should be echoed. The default is `False`.
+            should be echoed. The default is `None` which falls back
+            to the default set by the selected interface.
 
         Returns
         -------
