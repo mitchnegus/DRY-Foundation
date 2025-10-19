@@ -41,3 +41,7 @@
 ### 1.3.3
 
 - Use `None` rather than `False` as the `echo_engine` keyword argument for database interfaces to better support sensible defaults
+
+### 1.3.4
+
+- Remove double query for acquiring authorized entries

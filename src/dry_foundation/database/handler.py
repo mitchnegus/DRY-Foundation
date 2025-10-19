@@ -426,8 +426,7 @@ class DatabaseHandlerMixin:
         entry : database.models.Model
             The saved entry.
         """
-        cls._validate_authorization(entry_id)
-        entry = cls._db.session.get(cls.model, entry_id)
+        entry = cls._retrieve_authorized_manipulable_entry(entry_id)
         entry_fields = [column.name for column in cls.model.fields]
         for field, value in field_values.items():
             if field not in entry_fields:
@@ -448,14 +447,13 @@ class DatabaseHandlerMixin:
         entry_id : int
             The ID of the entry to be deleted.
         """
-        cls._validate_authorization(entry_id)
-        entry = cls._db.session.get(cls.model, entry_id)
+        entry = cls._retrieve_authorized_manipulable_entry(entry_id)
         cls._db.session.delete(entry)
         cls._db.session.flush()
 
     @classmethod
-    def _validate_authorization(cls, entry_id):
-        # Confirm (via access) that the user may manipulate the entry
+    def _retrieve_authorized_manipulable_entry(cls, entry_id):
+        """Retrieve an entry that the user is authorized to manipulate."""
         return cls.get_entry(entry_id)
 
 
@@ -510,6 +508,12 @@ class DatabaseViewHandlerMixin(DatabaseHandlerMixin):
     @classmethod
     @view_query
     def get_entry(cls, entry_id):
+        return super().get_entry(entry_id)
+
+    @classmethod
+    def _retrieve_authorized_manipulable_entry(cls, entry_id):
+        """Retrieve an entry that the user is authorized to manipulate."""
+        # Call the parent method since the entry must be manipulable (and views are not)
         return super().get_entry(entry_id)
 
 
