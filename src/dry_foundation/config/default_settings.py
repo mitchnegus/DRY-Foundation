@@ -13,9 +13,17 @@ class Config(ABC):
     # Flask app object configuration parameters
     REGISTRATION = True
     TESTING = False
+    # Set defaults for property-based custom configuration parameters
+    _database = None
+    _preload_data_path = None
 
     def __init__(
-        self, import_name, app_name=None, db_path=None, custom_config_filepaths=()
+        self,
+        import_name,
+        app_name=None,
+        db_path=None,
+        preload_data_path=None,
+        custom_config_filepaths=(),
     ):
         # App slug loosely corresponds to Flask `import_name`
         self.SLUG = import_name
@@ -24,7 +32,31 @@ class Config(ABC):
         # Read parameters from the configuration files in order of specificity
         for config_filepath in filter(lambda p: p.exists(), self.config_filepaths):
             self._read_config_json(config_filepath)
+        # Set property-based custom configuration parameters
         self.DATABASE = db_path
+        self.PRELOAD_DATA_PATH = preload_data_path
+
+    @property
+    def DATABASE(self):
+        return self._database
+
+    @DATABASE.setter
+    def DATABASE(self, value):
+        self._set_database(value)
+
+    def _set_database(self, value):
+        self._database = Path(value) if value else None
+
+    @property
+    def PRELOAD_DATA_PATH(self):
+        return self._preload_data_path
+
+    @PRELOAD_DATA_PATH.setter
+    def PRELOAD_DATA_PATH(self, value):
+        self._set_preload_data_path(value)
+
+    def _set_preload_data_path(self, value):
+        self._preload_data_path = Path(value) if value else None
 
     @property
     def config_filename(self):
@@ -42,15 +74,6 @@ class Config(ABC):
     def config_filepaths(self):
         # Set config filepaths in increasing order of importance
         return [*self.default_config_filepaths, *self._custom_config_filepaths]
-
-    @property
-    def DATABASE(self):
-        return self._database
-
-    @DATABASE.setter
-    def DATABASE(self, value):
-        # Ensure that the database path is always set as a `pathlib.Path` object if set
-        self._database = Path(value) if value else None
 
     def _read_config_json(self, config_path):
         # Read keys and values from a configuration JSON
@@ -79,6 +102,7 @@ class InstanceBasedConfig(Config):
         instance_path,
         app_name=None,
         db_path=None,
+        preload_data_path=None,
         custom_config_filepaths=(),
     ):
         self._instance_path = Path(instance_path)
@@ -87,10 +111,16 @@ class InstanceBasedConfig(Config):
             import_name,
             app_name=app_name,
             db_path=db_path,
+            preload_data=preload_data,
+            preload_data_path=preload_data_path,
             custom_config_filepaths=custom_config_filepaths,
         )
-        if not self.DATABASE and self.default_db_filename is not None:
-            self.DATABASE = self._instance_path / self.default_db_filename
+
+    def _set_database(self, value):
+        # Use a default instance-relative database path if not otherwise specified
+        if value is None:
+            value = self._instance_path / self.default_db_filename
+        super()._set_database(value)
 
     @property
     def default_config_filepaths(self):

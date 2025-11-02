@@ -17,6 +17,7 @@ class ProductionConfig(InstanceBasedConfig):
         instance_path,
         app_name=None,
         db_path=None,
+        preload_data_path=None,
         custom_config_filepaths=(),
     ):
         super().__init__(
@@ -24,6 +25,7 @@ class ProductionConfig(InstanceBasedConfig):
             instance_path,
             app_name=app_name,
             db_path=db_path,
+            preload_data_path=preload_data_path,
             custom_config_filepaths=custom_config_filepaths,
         )
         if self.SECRET_KEY == "INSECURE":
@@ -48,20 +50,24 @@ class DevelopmentConfig(InstanceBasedConfig):
         instance_path,
         app_name=None,
         db_path=None,
-        custom_config_filepaths=(),
         preload_data_path=None,
+        custom_config_filepaths=(),
     ):
         super().__init__(
             import_name,
             instance_path,
             app_name=app_name,
             db_path=db_path,
+            preload_data_path=preload_data_path,
             custom_config_filepaths=custom_config_filepaths,
         )
-        if preload_data_path is None:
+
+    def _set_preload_data_path(self, value):
+        # Use a default path to an SQL file with preload data if not otherwise specified
+        if value is None:
             dev_data_path = self._instance_path / "dev_data.sql"
-            preload_data_path = dev_data_path if dev_data_path.exists() else None
-        self.PRELOAD_DATA_PATH = preload_data_path
+            value = dev_data_path if dev_data_path.exists() else None
+        super()._set_database(value)
 
     @property
     def default_db_filename(self):
@@ -85,13 +91,13 @@ class TestingConfig(Config):
         import_name,
         app_name=None,
         db_path=None,
-        custom_config_filepaths=(),
         preload_data_path=None,
+        custom_config_filepaths=(),
     ):
         super().__init__(
             import_name,
             app_name=app_name,
             db_path=db_path,
+            preload_data_path=preload_data_path,
             custom_config_filepaths=custom_config_filepaths,
         )
-        self.PRELOAD_DATA_PATH = preload_data_path
