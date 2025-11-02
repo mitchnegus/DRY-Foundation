@@ -17,6 +17,7 @@ class ProductionConfig(InstanceBasedConfig):
         instance_path,
         app_name=None,
         db_path=None,
+        preload_data=None,
         preload_data_path=None,
         custom_config_filepaths=(),
     ):
@@ -25,6 +26,7 @@ class ProductionConfig(InstanceBasedConfig):
             instance_path,
             app_name=app_name,
             db_path=db_path,
+            preload_data=preload_data,
             preload_data_path=preload_data_path,
             custom_config_filepaths=custom_config_filepaths,
         )
@@ -50,6 +52,7 @@ class DevelopmentConfig(InstanceBasedConfig):
         instance_path,
         app_name=None,
         db_path=None,
+        preload_data=None,
         preload_data_path=None,
         custom_config_filepaths=(),
     ):
@@ -58,6 +61,7 @@ class DevelopmentConfig(InstanceBasedConfig):
             instance_path,
             app_name=app_name,
             db_path=db_path,
+            preload_data=preload_data,
             preload_data_path=preload_data_path,
             custom_config_filepaths=custom_config_filepaths,
         )
@@ -91,6 +95,7 @@ class TestingConfig(Config):
         import_name,
         app_name=None,
         db_path=None,
+        preload_data=None,
         preload_data_path=None,
         custom_config_filepaths=(),
     ):
@@ -98,6 +103,7 @@ class TestingConfig(Config):
             import_name,
             app_name=app_name,
             db_path=db_path,
+            preload_data=preload_data,
             preload_data_path=preload_data_path,
             custom_config_filepaths=custom_config_filepaths,
         )

@@ -1,13 +1,12 @@
 """Default configuration settings."""
 
 import json
-from abc import ABC
 from pathlib import Path
 
 DEFAULT_CONFIG_DIR = Path("/etc")
 
 
-class Config(ABC):
+class Config:
     """A base configuration object with some default settings."""
 
     # Flask app object configuration parameters
@@ -15,6 +14,7 @@ class Config(ABC):
     TESTING = False
     # Set defaults for property-based custom configuration parameters
     _database = None
+    _preload_data = None
     _preload_data_path = None
 
     def __init__(
@@ -22,6 +22,7 @@ class Config(ABC):
         import_name,
         app_name=None,
         db_path=None,
+        preload_data=None,
         preload_data_path=None,
         custom_config_filepaths=(),
     ):
@@ -34,6 +35,7 @@ class Config(ABC):
             self._read_config_json(config_filepath)
         # Set property-based custom configuration parameters
         self.DATABASE = db_path
+        self.PRELOAD_DATA = preload_data
         self.PRELOAD_DATA_PATH = preload_data_path
 
     @property
@@ -46,6 +48,22 @@ class Config(ABC):
 
     def _set_database(self, value):
         self._database = Path(value) if value else None
+
+    @property
+    def PRELOAD_DATA(self):
+        return self._preload_data
+
+    @PRELOAD_DATA.setter
+    def PRELOAD_DATA(self, value):
+        self._set_preload_data(value)
+
+    def _set_preload_data(self, value):
+        if value is not None and not callable(value):
+            raise TypeError(
+                "The `preload_data` argument must be a callable that loads data into "
+                "the database."
+            )
+        self._preload_data = value
 
     @property
     def PRELOAD_DATA_PATH(self):
@@ -102,6 +120,7 @@ class InstanceBasedConfig(Config):
         instance_path,
         app_name=None,
         db_path=None,
+        preload_data=None,
         preload_data_path=None,
         custom_config_filepaths=(),
     ):
