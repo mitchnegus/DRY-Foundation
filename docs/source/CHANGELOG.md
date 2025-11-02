@@ -45,3 +45,7 @@
 ### 1.3.4
 
 - Remove double query for acquiring authorized entries
+
+### 1.4.0 (in progress)
+
+- Set `TESTING` attribute to `False` as default for configurations

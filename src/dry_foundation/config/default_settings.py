@@ -12,6 +12,7 @@ class Config(ABC):
 
     # Flask app object configuration parameters
     REGISTRATION = True
+    TESTING = False
 
     def __init__(
         self, import_name, app_name=None, db_path=None, custom_config_filepaths=()
