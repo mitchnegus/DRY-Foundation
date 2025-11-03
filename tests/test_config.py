@@ -104,6 +104,23 @@ class TestDevelopmentConfig:
     def test_initialization(self, instance_path):
         config = DevelopmentConfig(APP_IMPORT_NAME, instance_path)
         assert config.SECRET_KEY == "development key"
+        assert config.PRELOAD_DATA_PATH is None
+
+    def test_default_preload_data_path(self, instance_path):
+        # Create (and use by default) a development data spec in the default location
+        mock_preload_data_path = instance_path / "dev_data.sql"
+        mock_preload_data_path.touch()
+        config = DevelopmentConfig(APP_IMPORT_NAME, instance_path)
+        assert config.PRELOAD_DATA_PATH == mock_preload_data_path
+
+    def test_preload_data_path(self, tmp_path, instance_path):
+        # Create and use a development data spec in an alternate location
+        mock_preload_data_path = tmp_path / "test_data.sql"
+        mock_preload_data_path.touch()
+        config = DevelopmentConfig(
+            APP_IMPORT_NAME, instance_path, preload_data_path=mock_preload_data_path
+        )
+        assert config.PRELOAD_DATA_PATH == mock_preload_data_path
 
 
 class TestTestingConfig:

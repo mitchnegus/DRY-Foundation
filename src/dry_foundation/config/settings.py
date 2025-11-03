@@ -71,7 +71,7 @@ class DevelopmentConfig(InstanceBasedConfig):
         if value is None:
             dev_data_path = self._instance_path / "dev_data.sql"
             value = dev_data_path if dev_data_path.exists() else None
-        super()._set_database(value)
+        super()._set_preload_data_path(value)
 
     @property
     def default_db_filename(self):

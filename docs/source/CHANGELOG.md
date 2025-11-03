@@ -52,3 +52,7 @@
 - Add a configuration parameter for a preloadable data callable
 - Improve generality of the app test manager configurations and fixup docstrings
 - Set `TESTING` attribute to `False` as default for configurations
+
+### 1.4.1
+
+- Fix a bug assigning `preload_data_path` values to configurations
