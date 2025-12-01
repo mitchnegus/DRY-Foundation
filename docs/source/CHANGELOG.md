@@ -56,3 +56,7 @@
 ### 1.4.1
 
 - Fix a bug assigning `preload_data_path` values to configurations
+
+### 1.5.0 (in progress)
+
+- Provide utilities for common user authorization tests

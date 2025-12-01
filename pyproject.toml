@@ -39,7 +39,7 @@ Changelog = 'https://github.com/mitchnegus/DRY-Foundation/blob/main/docs/source/
 
 # Set DRY Foundation as a pytest plugin to use the `AppTestManager` functionality
 [project.entry-points.pytest11]
-dry_foundation = "dry_foundation.testing.manager"
+dry_foundation = "dry_foundation.testing.base"
 
 [project.optional-dependencies]
 dev = [

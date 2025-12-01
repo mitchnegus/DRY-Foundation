@@ -1,5 +1,5 @@
 """
-Helper tools to improve testing of authorized database interactions.
+Objects for conducting application tests.
 """
 
 import functools
@@ -242,3 +242,43 @@ def app_context():
 def app_transaction_context():
     with registry["app_manager"].ephemeral_context():
         yield
+
+
+class AuthActions:
+    """
+    An object for performing authorized actions on behalf of a client.
+
+    Parameters
+    ----------
+    client : flask.testing.FlaskClient
+        The test client that will perform authorization actions.
+    """
+
+    def __init__(self, client):
+        self._client = client
+
+    def login(self, username, password, endpoint="/auth/login"):
+        """
+        Log in to the test application.
+
+        Parameters
+        ----------
+        endpoint : str
+            The URL endpoint to use when logging into an application.
+        username : str
+            The username to use when logging in to an application.
+        password : str
+            The password to use when logging in to an application.
+
+        Returns
+        -------
+        response : werkzeug.test.TestResponse
+            The response from the request.
+        """
+        return self._client.post(
+            endpoint, data={"username": username, "password": password}
+        )
+
+    def logout(self, endpoint="/auth/logout"):
+        """Log out of the test application."""
+        return self._client.get(endpoint)
