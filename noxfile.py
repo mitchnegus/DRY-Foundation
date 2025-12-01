@@ -13,6 +13,9 @@ PYTHON_PROJECT_FILES = [
     "noxfile.py",
 ]
 
+# Define common package versions
+RUFF = "ruff==0.14.7"
+
 #
 # --- TESTING ---
 #
@@ -60,7 +63,7 @@ def build_docs(session):
 # --- LINTING ---
 #
 
-LINTING_DEPS = ["ruff==0.12.8"]
+LINTING_DEPS = [RUFF]
 
 
 @nox.session
@@ -73,7 +76,7 @@ def lint(session):
 # --- FORMATTING ---
 #
 
-FORMAT_DEPS = ["ruff==0.12.8"]
+FORMAT_DEPS = [RUFF]
 PYTHON_FORMAT_FILES = [
     *PYTHON_PROJECT_FILES,
     DOCS_SRC / "conf.py",
