@@ -57,7 +57,8 @@
 
 - Fix a bug assigning `preload_data_path` values to configurations
 
-### 1.5.0 (in progress)
+### 1.5.0
 
+- Provide basic template global variables for injection as context processors
 - Provide utilities for common user authorization tests
 - Add the `TestRoutes` pytest-style test class for assisting with route endpoint tests
