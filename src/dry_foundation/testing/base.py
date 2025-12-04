@@ -37,7 +37,7 @@ class AppTestManager:
        one single test.
 
     To enable switching between the two types of apps, this class relies
-    on two Pytest fixtures (`app_context` and `app_transaction_context`)
+    on two pytest fixtures (`app_context` and `app_transaction_context`)
     to control the scope of the two apps. The `app_context` fixture is
     created just once for the session and is then automatically used in
     all tests. On the other hand, the `app_transaction_context` fixture
@@ -208,7 +208,7 @@ def pytest_generate_tests(metafunc):
     """
     Control test generation.
 
-    This function overrides the built-in Pytest function to explicitly
+    This function overrides the built-in pytest function to explicitly
     control test generation. Here, controlling test generation is
     required to alter the order of the `metafunc.fixturenames`
     attribute. The fixtures defined in that list are called (in order)

@@ -1,5 +1,5 @@
 """
-Helper tools to improve testing of authorized database interactions.
+Helper tools to improve testing of (authorized) database interactions.
 """
 
 import textwrap

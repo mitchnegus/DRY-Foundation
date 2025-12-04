@@ -60,3 +60,4 @@
 ### 1.5.0 (in progress)
 
 - Provide utilities for common user authorization tests
+- Add the `TestRoutes` pytest-style test class for assisting with route endpoint tests
