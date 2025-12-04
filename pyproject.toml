@@ -88,6 +88,9 @@ addopts = [
 ]
 pythonpath = ["tests/helpers"]
 norecursedirs = ["tests/helpers"]
+filterwarnings = [
+  'ignore:INSECURE:UserWarning',
+]
 
 [tool.coverage.run]
 omit = [
