@@ -62,3 +62,7 @@
 - Provide basic template global variables for injection as context processors
 - Provide utilities for common user authorization tests
 - Add the `TestRoutes` pytest-style test class for assisting with route endpoint tests
+
+### 1.6.0
+
+- Add reproducible form elements (via [_Flask-WTF_](https://flask-wtf.readthedocs.io/en/1.2.x/))
