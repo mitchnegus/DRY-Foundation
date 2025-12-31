@@ -66,3 +66,7 @@
 ### 1.6.0
 
 - Add reproducible form elements (via [_Flask-WTF_](https://flask-wtf.readthedocs.io/en/1.2.x/))
+
+### 1.6.1
+
+- Fix a bug where subclasses of `DatabaseViewHandlerMixin` subclasses would fail to call the `DatabaseHandlerMixin` when attempting to access manipulable entries

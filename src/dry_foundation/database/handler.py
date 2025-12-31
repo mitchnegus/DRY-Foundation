@@ -512,9 +512,17 @@ class DatabaseViewHandlerMixin(DatabaseHandlerMixin):
 
     @classmethod
     def _retrieve_authorized_manipulable_entry(cls, entry_id):
-        """Retrieve an entry that the user is authorized to manipulate."""
-        # Call the parent method since the entry must be manipulable (and views are not)
-        return super().get_entry(entry_id)
+        """
+        Retrieve an entry that the user is authorized to manipulate.
+
+        Notes
+        -----
+        This method calls the plain handler's ``get_entry`` method,
+        because it is executed outside the view context. The returned
+        entry must not be a view for it to be manipulable.
+        """
+        # Intentionally fix the subclass argument to `super` as this specific class
+        return super(DatabaseViewHandlerMixin, cls).get_entry(entry_id)
 
 
 class DatabaseHandler(DatabaseHandlerMixin, metaclass=DatabaseHandlerMeta):

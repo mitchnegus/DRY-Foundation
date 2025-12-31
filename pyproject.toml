@@ -122,5 +122,8 @@ ignore = [
   'SIM300',  # Yoda condition detection is poor in tests
 ]
 
+[tool.ruff.lint.per-file-ignores]
+"src/dry_foundation/database/handler.py" = ["UP008"]
+
 [tool.ruff.lint.isort]
 known-local-folder = ["testing_helpers"]
