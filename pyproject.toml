@@ -116,9 +116,6 @@ exclude = [
 ]
 ignore = [
   'E501',  # Line-length errors handled by ruff
-  'PIE790',
-  'PT007',
-  'PT011',
   'SIM300',  # Yoda condition detection is poor in tests
 ]
 

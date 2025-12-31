@@ -170,17 +170,17 @@ class TestProductionAppMode(_TestAppMode):
     @pytest.mark.parametrize(
         ("invalid_kwargs", "config", "exception"),
         [
-            [
+            (
                 {"host": "test.host", "port": "0000", "bind": "test.alt.host:9999"},
                 None,
                 ValueError,
-            ],
-            [{"port": "0000"}, None, ValueError],
-            [
+            ),
+            ({"port": "0000"}, None, ValueError),
+            (
                 {"gunicorn_config_path": "gunicorn_test_config.py"},
                 Mock(GUNICORN_CONFIG="test/config.py"),  # conflicts with direct path
                 ValueError,
-            ],
+            ),
         ],
     )
     def test_initialization_invalid(

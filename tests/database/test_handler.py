@@ -152,9 +152,9 @@ class TestDatabaseHandler(TestHandler):
     @pytest.mark.parametrize(
         ("criteria", "reference_entries"),
         [
-            [None, db_reference[:4]],
-            ["entry_criteria_x_single", db_reference[1:2]],
-            ["entry_criteria_x_multiple", db_reference[1:3]],
+            (None, db_reference[:4]),
+            ("entry_criteria_x_single", db_reference[1:2]),
+            ("entry_criteria_x_multiple", db_reference[1:3]),
         ],
         indirect=["criteria"],
     )
@@ -165,10 +165,10 @@ class TestDatabaseHandler(TestHandler):
     @pytest.mark.parametrize(
         ("offset", "limit", "reference_entries"),
         [
-            [None, None, db_reference[:4]],
-            [1, None, db_reference[1:4]],
-            [1, 2, db_reference[1:3]],
-            [None, 2, db_reference[:2]],
+            (None, None, db_reference[:4]),
+            (1, None, db_reference[1:4]),
+            (1, 2, db_reference[1:3]),
+            (None, 2, db_reference[:2]),
         ],
     )
     def test_get_entries_subset(self, entry_handler, offset, limit, reference_entries):
@@ -178,14 +178,14 @@ class TestDatabaseHandler(TestHandler):
     @pytest.mark.parametrize(
         ("column_orders", "reference_entries"),
         [
-            [None, db_reference[:4]],
-            [{Entry.x: "DESC"}, db_reference[3::-1]],
-            [{Entry.y: "DESC"}, db_reference[3:1:-1] + db_reference[:2]],
-            [
+            (None, db_reference[:4]),
+            ({Entry.x: "DESC"}, db_reference[3::-1]),
+            ({Entry.y: "DESC"}, db_reference[3:1:-1] + db_reference[:2]),
+            (
                 {Entry.x: "DESC", Entry.y: "ASC"},
                 db_reference[1::-1] + db_reference[2:4],
-            ],
-            [{Entry.y: "ASC", Entry.x: "DESC"}, db_reference[3::-1]],
+            ),
+            ({Entry.y: "ASC", Entry.x: "DESC"}, db_reference[3::-1]),
         ],
     )
     def test_get_sorted_entries(self, entry_handler, column_orders, reference_entries):
@@ -194,7 +194,10 @@ class TestDatabaseHandler(TestHandler):
 
     @pytest.mark.parametrize(
         ("column_orders", "expectation"),
-        [[{"invalid_field": "ASC"}, AttributeError], [{"x": "TEST"}, ValueError]],
+        [
+            ({"invalid_field": "ASC"}, AttributeError),
+            ({"x": "TEST"}, ValueError),
+        ],
     )
     def test_get_sorted_entries_invalid(
         self, entry_handler, column_orders, expectation
@@ -205,9 +208,9 @@ class TestDatabaseHandler(TestHandler):
     @pytest.mark.parametrize(
         ("criteria", "reference_entries"),
         [
-            [None, db_reference[4:6]],
-            ["authorized_entry_criteria_b_single", db_reference[5:6]],
-            ["authorized_entry_criteria_b_multiple", db_reference[5:6]],
+            (None, db_reference[4:6]),
+            ("authorized_entry_criteria_b_single", db_reference[5:6]),
+            ("authorized_entry_criteria_b_multiple", db_reference[5:6]),
         ],
         indirect=["criteria"],
     )
@@ -218,7 +221,11 @@ class TestDatabaseHandler(TestHandler):
         self.assert_entries_match(authorized_entries, reference_entries)
 
     @pytest.mark.parametrize(
-        ("entry_id", "reference_entry"), [[1, db_reference[0]], [3, db_reference[2]]]
+        ("entry_id", "reference_entry"),
+        [
+            (1, db_reference[0]),
+            (3, db_reference[2]),
+        ],
     )
     def test_get_entry(self, entry_handler, entry_id, reference_entry):
         entry = entry_handler.get_entry(entry_id)
@@ -226,7 +233,10 @@ class TestDatabaseHandler(TestHandler):
 
     @pytest.mark.parametrize(
         ("authorized_entry_id", "reference_entry"),
-        [[1, db_reference[4]], [2, db_reference[5]]],
+        [
+            (1, db_reference[4]),
+            (2, db_reference[5]),
+        ],
     )
     def test_get_authorized_entry(
         self, authorized_entry_handler, authorized_entry_id, reference_entry
@@ -237,8 +247,8 @@ class TestDatabaseHandler(TestHandler):
     @pytest.mark.parametrize(
         ("authorized_entry_id", "exception"),
         [
-            [3, NotFound],  # the entry is not accessible to user ID 1
-            [4, NotFound],  # the entry is not in the database
+            (3, NotFound),  # the entry is not accessible to user ID 1
+            (4, NotFound),  # the entry is not in the database
         ],
     )
     def test_get_authorized_entry_invalid(
@@ -250,8 +260,8 @@ class TestDatabaseHandler(TestHandler):
     @pytest.mark.parametrize(
         ("criteria", "reference_entry"),
         [
-            ["entry_criteria_x_single", db_reference[1]],
-            ["entry_criteria_x_empty", None],
+            ("entry_criteria_x_single", db_reference[1]),
+            ("entry_criteria_x_empty", None),
         ],
         indirect=["criteria"],
     )
@@ -286,8 +296,8 @@ class TestDatabaseHandler(TestHandler):
     @pytest.mark.parametrize(
         ("mapping", "exception"),
         [
-            [{"x": 4, "invalid_field": "Test", "user_id": 1}, TypeError],
-            [{"x": 4, "user_id": 1}, IntegrityError],
+            ({"x": 4, "invalid_field": "Test", "user_id": 1}, TypeError),
+            ({"x": 4, "user_id": 1}, IntegrityError),
         ],
     )
     def test_add_entry_invalid(self, entry_handler, mapping, exception):
@@ -312,8 +322,8 @@ class TestDatabaseHandler(TestHandler):
     @pytest.mark.parametrize(
         ("mapping", "exception"),
         [
-            [{"a": 4, "invalid_field": "four", "c": 1}, TypeError],
-            [{"a": 5, "b": "four"}, IntegrityError],
+            ({"a": 4, "invalid_field": "four", "c": 1}, TypeError),
+            ({"a": 5, "b": "four"}, IntegrityError),
         ],
     )
     def test_add_authorized_entry_invalid(
@@ -350,9 +360,9 @@ class TestDatabaseHandler(TestHandler):
         ("entry_id", "mapping", "exception"),
         [
             # Invalid field
-            [2, {"invalid_field": "test", "user_id": 1}, ValueError],
+            (2, {"invalid_field": "test", "user_id": 1}, ValueError),
             # Nonexistent ID
-            [5, {"y": "test", "user_id": 1}, NotFound],
+            (5, {"y": "test", "user_id": 1}, NotFound),
         ],
     )
     def test_update_entry_invalid(self, entry_handler, entry_id, mapping, exception):
@@ -377,15 +387,15 @@ class TestDatabaseHandler(TestHandler):
         ("authorized_entry_id", "mapping", "exception"),
         [
             # Wrong entry user
-            [3, {"b": "test", "c": 4}, NotFound],
+            (3, {"b": "test", "c": 4}, NotFound),
             # Wrong entry user (trying to change to authorized user)
-            [3, {"b": "test", "c": 2}, NotFound],
+            (3, {"b": "test", "c": 2}, NotFound),
             # Wrong entry user (trying to change from authorized user)
-            [2, {"b": "test", "c": 4}, NotFound],
+            (2, {"b": "test", "c": 4}, NotFound),
             # Invalid field
-            [2, {"invalid_field": "test", "c": 1}, ValueError],
+            (2, {"invalid_field": "test", "c": 1}, ValueError),
             # Nonexistent ID
-            [4, {"b": "test", "c": 1}, NotFound],
+            (4, {"b": "test", "c": 1}, NotFound),
         ],
     )
     def test_update_authorized_entry_invalid(
@@ -405,7 +415,7 @@ class TestDatabaseHandler(TestHandler):
     @pytest.mark.parametrize(
         ("entry_id", "exception"),
         [
-            [5, NotFound],  # should not be able to delete nonexistent entries
+            (5, NotFound),  # should not be able to delete nonexistent entries
         ],
     )
     def test_delete_entry_invalid(self, entry_handler, entry_id, exception):
@@ -429,8 +439,8 @@ class TestDatabaseHandler(TestHandler):
     @pytest.mark.parametrize(
         ("authorized_entry_id", "exception"),
         [
-            [3, NotFound],  # should not be able to delete other user entries
-            [4, NotFound],  # should not be able to delete nonexistent entries
+            (3, NotFound),  # should not be able to delete other user entries
+            (4, NotFound),  # should not be able to delete nonexistent entries
         ],
     )
     def test_delete_authorized_entry_invalid(
@@ -463,9 +473,9 @@ class TestDatabaseViewHandler(TestHandler):
     @pytest.mark.parametrize(
         ("criteria", "reference_entries"),
         [
-            [None, db_reference[:4]],
-            ["alt_authorized_entry_criteria_r_single", db_reference[1:2]],
-            ["alt_authorized_entry_criteria_r_multiple", db_reference[0:2]],
+            (None, db_reference[:4]),
+            ("alt_authorized_entry_criteria_r_single", db_reference[1:2]),
+            ("alt_authorized_entry_criteria_r_multiple", db_reference[0:2]),
         ],
         indirect=["criteria"],
     )
@@ -477,7 +487,10 @@ class TestDatabaseViewHandler(TestHandler):
 
     @pytest.mark.parametrize(
         ("alt_authorized_entry_id", "reference_entry"),
-        [[1, db_reference[0]], [2, db_reference[1]]],
+        [
+            (1, db_reference[0]),
+            (2, db_reference[1]),
+        ],
     )
     def test_get_authorized_entry_view(
         self, view_handler, alt_authorized_entry_id, reference_entry
@@ -488,8 +501,8 @@ class TestDatabaseViewHandler(TestHandler):
     @pytest.mark.parametrize(
         ("alt_authorized_entry_id", "exception"),
         [
-            [4, NotFound],  # the entry (view) is not accessible to user ID 1
-            [5, NotFound],  # the entry (view) is not in the database
+            (4, NotFound),  # the entry (view) is not accessible to user ID 1
+            (5, NotFound),  # the entry (view) is not in the database
         ],
     )
     def test_get_authorized_entry_view_invalid(
@@ -501,7 +514,7 @@ class TestDatabaseViewHandler(TestHandler):
     @pytest.mark.parametrize(
         ("criteria", "reference_entry"),
         [
-            ["alt_authorized_entry_criteria_r_single", db_reference[1]],
+            ("alt_authorized_entry_criteria_r_single", db_reference[1]),
         ],
         indirect=["criteria"],
     )
@@ -532,9 +545,9 @@ class TestDatabaseViewHandler(TestHandler):
     @pytest.mark.parametrize(
         ("mapping", "exception"),
         [
-            [{"p": 4, "invalid_field": "Test"}, TypeError],
-            [{"p": 5, "q": 4}, IntegrityError],
-            [{"p": 5}, IntegrityError],
+            ({"p": 4, "invalid_field": "Test"}, TypeError),
+            ({"p": 5, "q": 4}, IntegrityError),
+            ({"p": 5}, IntegrityError),
         ],
     )
     def test_add_authorized_entry_view_invalid(self, view_handler, mapping, exception):
@@ -563,13 +576,13 @@ class TestDatabaseViewHandler(TestHandler):
         ("alt_authorized_entry_id", "mapping", "exception"),
         [
             # Wrong entry user (trying to change to authorized user)
-            [4, {"q": 2}, NotFound],
+            (4, {"q": 2}, NotFound),
             # Wrong entry user (trying to change from authorized user)
-            [3, {"q": 3}, NotFound],
+            (3, {"q": 3}, NotFound),
             # Invalid field
-            [3, {"invalid_field": "test"}, ValueError],
+            (3, {"invalid_field": "test"}, ValueError),
             # Nonexistent ID
-            [5, {"q": 2}, NotFound],
+            (5, {"q": 2}, NotFound),
         ],
     )
     def test_update_authorized_entry_view_invalid(
@@ -591,8 +604,8 @@ class TestDatabaseViewHandler(TestHandler):
     @pytest.mark.parametrize(
         ("alt_authorized_entry_id", "exception"),
         [
-            [4, NotFound],  # should not be able to delete other user entries
-            [5, NotFound],  # should not be able to delete nonexistent entries
+            (4, NotFound),  # should not be able to delete other user entries
+            (5, NotFound),  # should not be able to delete nonexistent entries
         ],
     )
     def test_delete_entry_view_invalid(

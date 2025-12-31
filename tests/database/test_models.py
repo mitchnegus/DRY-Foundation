@@ -21,14 +21,14 @@ class TestModels:
     @pytest.mark.parametrize(
         ("mapping", "expected_repr_string"),
         [
-            [
+            (
                 {"x": 2, "y": "test2", "user_id": 1},
                 "Entry(x=2, y='test2', user_id=1)",
-            ],
-            [
+            ),
+            (
                 {"x": 2, "y": "test2 and some other long text", "user_id": 1},
                 "Entry(x=2, y='test2 and some other long...', user_id=1)",
-            ],
+            ),
         ],
     )
     def test_model_representation(self, mapping, expected_repr_string):

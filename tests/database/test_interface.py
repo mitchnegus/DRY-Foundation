@@ -55,8 +55,8 @@ def execute_database_transaction(app, x, y):
 @pytest.mark.parametrize(
     ("execution_function", "expected_count"),
     [
-        [db_transaction(execute_database_transaction), 1],
-        [execute_database_transaction, 0],
+        (db_transaction(execute_database_transaction), 1),
+        (execute_database_transaction, 0),
     ],
 )
 @transaction_lifetime

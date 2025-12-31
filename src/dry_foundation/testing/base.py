@@ -168,7 +168,6 @@ class AppTestManager:
         db : SQLAlchemy
             The app object’s database interface.
         """
-        pass
 
 
 def transaction_lifetime(test_function):

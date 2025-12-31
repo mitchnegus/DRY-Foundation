@@ -10,9 +10,9 @@ from dry_foundation.database.utils import validate_sort_order
 @pytest.mark.parametrize(
     ("sort_order", "expectation"),
     [
-        ["ASC", does_not_raise()],
-        ["DESC", does_not_raise()],
-        ["test", pytest.raises(ValueError)],
+        ("ASC", does_not_raise()),
+        ("DESC", does_not_raise()),
+        ("test", pytest.raises(ValueError, match=r"Provide a valid sort order.*")),
     ],
 )
 def test_validate_sort_order(sort_order, expectation):
