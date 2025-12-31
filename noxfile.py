@@ -14,7 +14,7 @@ PYTHON_PROJECT_FILES = [
 ]
 
 # Define common package versions
-RUFF = "ruff==0.14.7"
+RUFF = "ruff==0.14.10"
 
 #
 # --- TESTING ---

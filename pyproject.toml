@@ -45,7 +45,7 @@ dry_foundation = "dry_foundation.testing.base"
 
 [project.optional-dependencies]
 dev = [
-  'nox~=2025.5.1',
+  'nox~=2025.11.12',
   'dry_foundation[docs,test]',
 ]
 docs = [
@@ -54,7 +54,7 @@ docs = [
   'myst-parser',
 ]
 test = [
-  'coverage==7.12.0',
+  'coverage==7.13.1',
   # pytest included in standard dependencies
 ]
 
