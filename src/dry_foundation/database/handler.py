@@ -517,12 +517,12 @@ class DatabaseViewHandlerMixin(DatabaseHandlerMixin):
 
         Notes
         -----
-        This method calls the plain handler's ``get_entry`` method,
-        because it is executed outside the view context. The returned
-        entry must not be a view for it to be manipulable.
+        This method calls the parent handler's ``get_entry`` method,
+        because that method is executed outside the view context. The
+        returned entry must not be a view for it to be manipulable.
         """
         # Intentionally fix the subclass argument to `super` as this specific class
-        return super(DatabaseViewHandlerMixin, cls).get_entry(entry_id)
+        return super().get_entry(entry_id)
 
 
 class DatabaseHandler(DatabaseHandlerMixin, metaclass=DatabaseHandlerMeta):

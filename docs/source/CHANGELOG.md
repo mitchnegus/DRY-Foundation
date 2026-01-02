@@ -70,3 +70,7 @@
 ### 1.6.1
 
 - Fix a bug where subclasses of `DatabaseViewHandlerMixin` subclasses would fail to call the `DatabaseHandlerMixin` when attempting to access manipulable entries
+
+### 1.6.2
+
+ - Rollback change introduced in version 1.6.1 because it does not actually do anything (I do actually understand Python); bug seems to appear only on locally launched applications
