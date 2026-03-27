@@ -11,25 +11,25 @@ description = 'Tools and components for building customized and consistent small
 license = { text = 'GNU GPLv3' }
 requires-python = '>=3.10'
 dependencies = [
-  'beautifulsoup4>=4.14.2',
-  'click>=8.2.0,<8.3',
-  'Flask>=2.2.2',
-  'Flask-WTF==1.2.2',
-  'gunicorn>=23.0.0',
-  'SQLAlchemy>=2.0.0',
-  'sqlalchemy-views>=0.3.2',
-  'pytest>=8.4.1',
+    'beautifulsoup4>=4.14.2',
+    'click>=8.2.0,<8.3',
+    'Flask>=2.2.2',
+    'Flask-WTF==1.2.2',
+    'gunicorn>=23.0.0',
+    'SQLAlchemy>=2.0.0',
+    'sqlalchemy-views>=0.3.2',
+    'pytest>=8.4.1',
 ]
 keywords = [
 ]
 classifiers = [
-  'Development Status :: 3 - Alpha',
-  'Framework :: Flask',
-  'Framework :: Pytest',
-  'License :: OSI Approved :: GNU General Public License v3 (GPLv3)',
-  'Natural Language :: English',
-  'Operating System :: OS Independent',
-  'Programming Language :: Python',
+    'Development Status :: 3 - Alpha',
+    'Framework :: Flask',
+    'Framework :: Pytest',
+    'License :: OSI Approved :: GNU General Public License v3 (GPLv3)',
+    'Natural Language :: English',
+    'Operating System :: OS Independent',
+    'Programming Language :: Python',
 ]
 dynamic = ['readme', 'version']
 
@@ -43,19 +43,15 @@ Changelog = 'https://github.com/mitchnegus/DRY-Foundation/blob/main/docs/source/
 [project.entry-points.pytest11]
 dry_foundation = "dry_foundation.testing.base"
 
-[project.optional-dependencies]
-dev = [
-  'nox~=2025.11.12',
-  'dry_foundation[docs,test]',
-]
+[dependency-groups]
 docs = [
-  'furo',
-  'sphinx',
-  'myst-parser',
+    "furo>=2025.12.19",
+    "myst-parser>=4.0.1",
+    "sphinx>=8.1.3",
 ]
 test = [
-  'coverage==7.13.1',
-  # pytest included in standard dependencies
+    "coverage>=7.13.1",
+    # pytest included in standard dependencies
 ]
 
 [tool.hatch.version]
@@ -63,7 +59,7 @@ source = 'vcs'
 
 [tool.hatch.build.targets.wheel]
 packages = [
-  'src/dry_foundation',
+    'src/dry_foundation',
 ]
 
 [tool.hatch.build.hooks.vcs]
@@ -90,33 +86,34 @@ addopts = [
 pythonpath = ["tests/helpers"]
 norecursedirs = ["tests/helpers"]
 filterwarnings = [
-  'ignore:INSECURE:UserWarning',
+    'ignore:INSECURE:UserWarning',
 ]
 
 [tool.coverage.run]
 omit = [
-   '_version.py',
+     '_version.py',
 ]
 
 [tool.coverage.report]
 exclude_also = [
-  'raise NotImplementedError',
-  'pass',
+    'raise NotImplementedError',
+    'pass',
 ]
 
 [tool.ruff.format]
 exclude = [
-  'src/dry_foundation/_version.py',
+    'src/dry_foundation/_version.py',
 ]
 
 [tool.ruff.lint]
 select = ['A', 'C4', 'E', 'F', 'I', 'PIE', 'PT', 'UP', 'SIM']
 exclude = [
-  'src/dry_foundation/_version.py',
+    'src/dry_foundation/_version.py',
+    'docs/source/conf.py',
 ]
 ignore = [
-  'E501',  # Line-length errors handled by ruff
-  'SIM300',  # Yoda condition detection is poor in tests
+    'E501',  # Line-length errors handled by ruff
+    'SIM300',  # Yoda condition detection is poor in tests
 ]
 
 [tool.ruff.lint.per-file-ignores]

@@ -66,6 +66,8 @@ pip install dry-foundation
 
 The package requires a recent version of Python (3.10+).
 
+Development dependencies include [uv](https://docs.astral.sh/uv/) and [`just`](https://just.systems/man/en/introduction.html).
+
 
 ## Usage
 

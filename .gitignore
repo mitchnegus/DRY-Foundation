@@ -71,9 +71,6 @@ target/
 # Mac custom attributes file
 .DS_Store
 
-# Virtual environment
-dry-env/
-
 # Hatch-generated version file
 src/dry_foundation/_version.py
 
