@@ -88,7 +88,8 @@ class DatabaseViewHandlerMeta(DatabaseHandlerMeta):
 
     @property
     def model(cls):
-        return cls._model_view if cls._view_context else cls._model
+        view_context = getattr(g, "view_contexts", {}).get(cls.__name__, False)
+        return cls._model_view if view_context else cls._model
 
     @property
     def table(cls):
@@ -469,19 +470,18 @@ class DatabaseViewHandlerMixin(DatabaseHandlerMixin):
     database view handler interface.
     """
 
-    _view_context = False
-
     def view_query(func):
         """Require that a function use a model view rather than the model."""
 
         @functools.wraps(func)
         def wrapper(cls, *args, **kwargs):
-            orig_view_context = cls._view_context
-            cls._view_context = True
+            view_contexts = g.setdefault("view_contexts", {})
+            orig_view_context = view_contexts.get(cls.__name__, False)
+            view_contexts[cls.__name__] = True
             try:
                 return_value = func(cls, *args, **kwargs)
             finally:
-                cls._view_context = orig_view_context
+                view_contexts[cls.__name__] = orig_view_context
             return return_value
 
         return wrapper

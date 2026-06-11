@@ -78,3 +78,4 @@
 ### 1.6.3 (in progress)
 
 - Transition to using uv and `just` for task management
+- Fix thread-unsafe view context state in `DatabaseViewHandlerMixin`

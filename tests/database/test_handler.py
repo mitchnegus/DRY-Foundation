@@ -1,6 +1,6 @@
 """Tests for the database handlers."""
 
-from contextlib import contextmanager
+from types import SimpleNamespace
 from unittest.mock import Mock, patch
 
 import pytest
@@ -22,14 +22,23 @@ from testing_helpers import (
 )
 
 
-@contextmanager
-def mocked_user(user_id):
+@pytest.fixture
+def mock_global_namespace(client_context):
     with (
-        patch("dry_foundation.database.handler.g") as mock_global_namespace,
+        patch(
+            "dry_foundation.database.handler.g", new_callable=SimpleNamespace
+        ) as mock_global_namespace,
         patch("dry_foundation.database.models.g", new=mock_global_namespace),
     ):
-        mock_global_namespace.user = Mock(id=1)
-        yield
+        mock_global_namespace.setdefault = mock_global_namespace.__dict__.setdefault
+        mock_global_namespace.view_contexts = {}
+        yield mock_global_namespace
+
+
+@pytest.fixture
+def mock_user_context(mock_global_namespace):
+    mock_global_namespace.user = Mock(id=1)
+    return mock_global_namespace
 
 
 class EntryHandler(DatabaseHandler, model=Entry):
@@ -37,9 +46,8 @@ class EntryHandler(DatabaseHandler, model=Entry):
 
 
 @pytest.fixture
-def entry_handler(client_context):
-    with mocked_user(user_id=1):
-        yield EntryHandler
+def entry_handler(mock_user_context):
+    return EntryHandler
 
 
 class AuthorizedEntryHandler(DatabaseHandler, model=AuthorizedEntry):
@@ -47,9 +55,8 @@ class AuthorizedEntryHandler(DatabaseHandler, model=AuthorizedEntry):
 
 
 @pytest.fixture
-def authorized_entry_handler(client_context):
-    with mocked_user(user_id=1):
-        yield AuthorizedEntryHandler
+def authorized_entry_handler(mock_user_context):
+    return AuthorizedEntryHandler
 
 
 class AlternateAuthorizedEntryViewHandler(
@@ -61,9 +68,8 @@ class AlternateAuthorizedEntryViewHandler(
 
 
 @pytest.fixture
-def view_handler(client_context):
-    with mocked_user(user_id=1):
-        yield AlternateAuthorizedEntryViewHandler
+def view_handler(mock_user_context):
+    return AlternateAuthorizedEntryViewHandler
 
 
 @pytest.fixture
@@ -464,11 +470,10 @@ class TestDatabaseViewHandler(TestHandler):
         assert view_handler.table_view.name == "alt_authorized_entries_view"
         assert view_handler.user_id == 1
 
-    def test_model_view_access(self, view_handler):
+    def test_model_view_access(self, mock_global_namespace, view_handler):
         assert view_handler.model == AlternateAuthorizedEntry
-        view_handler._view_context = True
+        mock_global_namespace.view_contexts[view_handler.__name__] = True
         assert view_handler.model == AlternateAuthorizedEntryView
-        view_handler._view_context = False
 
     @pytest.mark.parametrize(
         ("criteria", "reference_entries"),
