@@ -1,5 +1,6 @@
 """Tests for application configuration objects."""
 
+import json
 from pathlib import Path
 from unittest.mock import patch
 
@@ -15,6 +16,26 @@ from dry_foundation.config import (
 )
 
 APP_IMPORT_NAME = "test"
+
+
+@pytest.fixture
+def default_config(tmp_path):
+    default_config_filepath = tmp_path / "config" / f"{APP_IMPORT_NAME}-config.json"
+    default_config_filepath.parent.mkdir()
+    default_config_content = {"SECRET_KEY": "test secret key", "OTHER": "other"}
+    default_config_filepath.write_text(json.dumps(default_config_content))
+    with patch(
+        "dry_foundation.config.default_settings.DEFAULT_CONFIG_DIR",
+        new=default_config_filepath.parent,
+    ):
+        yield
+
+
+@pytest.fixture
+def instance_config(instance_path):
+    instance_config_filepath = instance_path / "test-config.json"
+    instance_config_content = {"OTHER": "test supersede"}
+    instance_config_filepath.write_text(json.dumps(instance_config_content))
 
 
 class TestGenericConfig:
@@ -58,22 +79,6 @@ class TestGenericConfig:
             Config(APP_IMPORT_NAME, preload_data_path=1)
 
 
-@pytest.fixture
-def production_config_default_config_filepaths(default_config_filepath):
-    with patch.object(
-        ProductionConfig, "default_config_filepaths", new=[default_config_filepath]
-    ):
-        yield
-
-
-@pytest.fixture
-def production_config_default_global_config_filepath(default_config_filepath):
-    with patch.object(
-        ProductionConfig, "default_global_config_filepath", new=default_config_filepath
-    ):
-        yield
-
-
 class TestProductionConfig:
     """Test the production configuration."""
 
@@ -81,17 +86,15 @@ class TestProductionConfig:
         config = ProductionConfig(APP_IMPORT_NAME, instance_path)
         assert config.SECRET_KEY == "INSECURE"
 
-    def test_initialization_default_file(
-        self, instance_path, production_config_default_config_filepaths
-    ):
+    def test_initialization_default_configuration(self, instance_path, default_config):
         config = ProductionConfig(APP_IMPORT_NAME, instance_path)
         assert config.SECRET_KEY == "test secret key"
 
     def test_initialization_instance_file_supersedes(
         self,
         instance_path,
-        production_config_default_global_config_filepath,
-        instance_config_filepath,
+        instance_config,
+        default_config,
     ):
         config = ProductionConfig(APP_IMPORT_NAME, instance_path)
         assert config.SECRET_KEY == "test secret key"
@@ -131,3 +134,18 @@ class TestTestingConfig:
         config = _TestingConfig(APP_IMPORT_NAME, db_path=mock_db_path)
         assert config.SECRET_KEY == "testing key"
         assert config.DATABASE == mock_db_path
+        assert config.TESTING is True
+
+    def test_initialization_default_configuration(self, default_config):
+        # The global config file should never be consulted during testing
+        config = _TestingConfig(APP_IMPORT_NAME)
+        assert config.config_filepaths == []
+
+    def test_initialization_custom_configuration(self, tmp_path, default_config):
+        custom_path = tmp_path / "custom-test-config.json"
+        custom_path.write_text(json.dumps({}))
+        config = _TestingConfig(
+            APP_IMPORT_NAME,
+            custom_config_filepaths=[custom_path],
+        )
+        assert config.config_filepaths == [custom_path]

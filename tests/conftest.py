@@ -1,4 +1,3 @@
-import json
 from unittest.mock import Mock
 
 import pytest
@@ -87,19 +86,3 @@ def instance_path(tmp_path):
     instance_dir = tmp_path / "instance"
     instance_dir.mkdir()
     return instance_dir
-
-
-@pytest.fixture
-def instance_config_filepath(instance_path):
-    config_filepath = instance_path / "test-config.json"
-    with config_filepath.open("w") as test_config_file:
-        json.dump({"OTHER": "test supersede"}, test_config_file)
-    return config_filepath
-
-
-@pytest.fixture
-def default_config_filepath(tmp_path):
-    config_filepath = tmp_path / "test-config.json"
-    with config_filepath.open("w") as test_config_file:
-        json.dump({"SECRET_KEY": "test secret key", "OTHER": "other"}, test_config_file)
-    return config_filepath

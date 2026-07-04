@@ -81,3 +81,7 @@
 - Fix thread-unsafe view context state in `DatabaseViewHandlerMixin`
 - Fix minor bugs in the CLI launcher
 - Add testing for Python 3.14
+
+## 1.6.4
+
+- Allow `TestingConfig` to still use custom configuration path overrides

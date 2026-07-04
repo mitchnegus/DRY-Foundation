@@ -87,8 +87,6 @@ class TestingConfig(Config):
     DATABASE_INTERFACE_ARGS = ()
     DATABASE_INTERFACE_KWARGS = {}
     WTF_CSRF_ENABLED = False
-    # Do not use local app configurations when testing
-    config_filepaths = []
 
     def __init__(
         self,
@@ -107,3 +105,8 @@ class TestingConfig(Config):
             preload_data_path=preload_data_path,
             custom_config_filepaths=custom_config_filepaths,
         )
+
+    @property
+    def default_config_filepaths(self):
+        # Do not use local app configurations when testing
+        return []
