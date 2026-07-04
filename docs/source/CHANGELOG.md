@@ -75,8 +75,9 @@
 
  - Rollback change introduced in version 1.6.1 because it does not actually do anything (I do actually understand Python); bug seems to appear only on locally launched applications
 
-### 1.6.3 (in progress)
+### 1.6.3
 
 - Transition to using uv and `just` for task management
 - Fix thread-unsafe view context state in `DatabaseViewHandlerMixin`
 - Fix minor bugs in the CLI launcher
+- Add testing for Python 3.14

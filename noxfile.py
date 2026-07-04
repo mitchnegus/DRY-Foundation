@@ -16,7 +16,7 @@ def clean_coverage(session):
 @nox.session(
     name="test",
     venv_backend="uv",
-    python=["3.10", "3.11", "3.12", "3.13"],
+    python=["3.10", "3.11", "3.12", "3.13", "3.14"],
     requires=["clean-coverage"],
 )
 def test_package(session):
