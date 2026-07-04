@@ -8,7 +8,7 @@ from collections import UserList
 
 from flask import current_app, g
 from sqlalchemy import select
-from sqlalchemy.exc import ArgumentError, NoResultFound
+from sqlalchemy.exc import NoResultFound
 from werkzeug.exceptions import abort
 
 from .utils import validate_sort_order
@@ -54,7 +54,7 @@ class DatabaseHandlerMeta(ABCMeta):
         # not permitted; instead, the metaclass property must reference the true
         # class's dictionary of values to get the overridden attribute
         value = cls.__dict__.get(name)
-        if value:
+        if value is not None:
             return value
         # The handler subclass must have given the attribute a value to be valid
         raise NotImplementedError(f"Define a value for '{name}' in this subclass.")
@@ -107,9 +107,29 @@ class QueryCriteria(UserList):
 
     def __init__(self):
         super().__init__()
+        # Track all models that have filter criteria being applied
         self.discriminators = []
 
-    def add_match_filter(self, model, field, values):
+    def add_match_filter(self, model, field, value):
+        """
+        Add a filter to the query to select only a matching entry.
+
+        Parameters
+        ----------
+        model : database.models.Model
+            The ORM model representing the table to to be filtered.
+        field : str
+            The name of the field which is the subject of the filter.
+        values : list, None
+            A value that will be applied as the matching criteria for
+            the field.
+        """
+        # Build a filter based on any given value
+        if value is not None:
+            criterion = getattr(model, field) == value
+            self._add_filter(model, criterion)
+
+    def add_membership_filter(self, model, field, values):
         """
         Add a filter to the query to select only matching entries.
 
@@ -119,18 +139,19 @@ class QueryCriteria(UserList):
             The ORM model representing the table to to be filtered.
         field : str
             The name of the field which is the subject of the filter.
-        values :
-            A list of values (or a singular value) that will applied
-            as the matching criteria for the field.
+        values : list, None
+            Values that will be applied as the matching criteria for the
+            field. If ``None``, then no filter will be applied (i.e.,
+            all values will be accepted).
         """
-        # Build a filter based on any given value(s)
+        # Build a filter based on any given values
         if values is not None:
-            try:
-                criterion = getattr(model, field).in_(values)
-            except ArgumentError:
-                criterion = getattr(model, field) == values
-            self.data.append(criterion)
-            self.discriminators.append(model)
+            criterion = getattr(model, field).in_(values)
+            self._add_filter(model, criterion)
+
+    def _add_filter(self, model, criterion):
+        self.discriminators.append(model)
+        self.data.append(criterion)
 
     def append(self, item):
         raise RuntimeError(
@@ -289,7 +310,7 @@ class DatabaseHandlerMixin:
         """
         # Prepare the criteria by merging IDs with other criteria
         criteria = criteria if criteria else QueryCriteria()
-        criteria.add_match_filter(cls.model, "primary_key_field", entry_ids)
+        criteria.add_membership_filter(cls.model, "primary_key_field", entry_ids)
         # Query the database
         query = cls._build_select_query(**kwargs)
         query = cls._customize_entries_query(

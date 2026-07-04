@@ -89,7 +89,7 @@ def entry_criteria_x_single():
 @pytest.fixture
 def entry_criteria_x_multiple():
     criteria = QueryCriteria()
-    criteria.add_match_filter(Entry, "x", (2, 3))
+    criteria.add_membership_filter(Entry, "x", [2, 3])
     return criteria
 
 
@@ -110,7 +110,7 @@ def authorized_entry_criteria_b_single():
 @pytest.fixture
 def authorized_entry_criteria_b_multiple():
     criteria = QueryCriteria()
-    criteria.add_match_filter(AuthorizedEntry, "b", ("two", "three"))
+    criteria.add_membership_filter(AuthorizedEntry, "b", ["two", "three"])
     return criteria
 
 
@@ -124,7 +124,7 @@ def alt_authorized_entry_criteria_r_single():
 @pytest.fixture
 def alt_authorized_entry_criteria_r_multiple():
     criteria = QueryCriteria()
-    criteria.add_match_filter(AlternateAuthorizedEntryView, "r", (2, 4))
+    criteria.add_membership_filter(AlternateAuthorizedEntryView, "r", [2, 4])
     return criteria
 
 
@@ -136,6 +136,8 @@ def alt_authorized_entry_criteria_r_empty():
 
 
 class TestDatabaseHandler(TestHandler):
+    """Tests for generic database handlers."""
+
     # Reference only includes authorized entries accessible to user ID 1
     db_reference = [
         Entry(x=1, y="ten", user_id=1),
@@ -457,6 +459,8 @@ class TestDatabaseHandler(TestHandler):
 
 
 class TestDatabaseViewHandler(TestHandler):
+    """Tests for generic database view handlers."""
+
     # Reference only includes authorized entries accessible to user ID 1
     db_reference = [
         AlternateAuthorizedEntryView(p=1, q=1, r=2),
@@ -621,16 +625,15 @@ class TestDatabaseViewHandler(TestHandler):
 
 
 class TestQueryCriteria:
+    """Tests for the ``QueryCriteria`` object."""
+
     @pytest.mark.parametrize(
         "filters",
         [
-            [(Entry, "x", (1, 2, 3))],
             [(Entry, "x", 1)],
-            [
-                (Entry, "x", (1, 2, 3)),
-                (Entry, "y", ("ten", "twelve")),
-                (AuthorizedEntry, "a", (1, 2)),
-            ],
+            [(Entry, "x", "ten")],
+            [(Entry, "x", False)],
+            [(Entry, "y", "ten"), (Entry, "y", "twelve")],
         ],
     )
     def test_add_match_filter(self, filters):
@@ -639,6 +642,42 @@ class TestQueryCriteria:
             criteria.add_match_filter(*filter_)
         assert len(criteria) == len(filters)
         assert criteria.discriminators == [filter_[0] for filter_ in filters]
+
+    def test_add_null_match_filter(self):
+        criteria = QueryCriteria()
+        criteria.add_match_filter(Entry, "y", None)
+        assert len(criteria) == 0
+
+    @pytest.mark.parametrize(
+        "filters",
+        [
+            [(Entry, "x", [1, 2, 3])],
+            [(Entry, "y", ["ten", "twelve"])],
+            [
+                (Entry, "x", [1, 2, 3]),
+                (Entry, "y", ["ten", "twelve"]),
+                (AuthorizedEntry, "a", [1, 2]),
+            ],
+        ],
+    )
+    def test_add_membership_filter(self, filters):
+        criteria = QueryCriteria()
+        for filter_ in filters:
+            criteria.add_membership_filter(*filter_)
+        assert len(criteria) == len(filters)
+        assert criteria.discriminators == [filter_[0] for filter_ in filters]
+
+    def test_add_empty_membership_filter(self):
+        criteria = QueryCriteria()
+        criteria.add_membership_filter(Entry, "y", [])
+        # Empty list is still a criterion
+        assert len(criteria) == 1
+
+    def test_add_null_membership_filter(self):
+        criteria = QueryCriteria()
+        criteria.add_membership_filter(Entry, "y", None)
+        # Passing `None` skips adding a criterion
+        assert len(criteria) == 0
 
     def test_append_invalid(self):
         criteria = QueryCriteria()
