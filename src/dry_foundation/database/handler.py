@@ -377,7 +377,7 @@ class DatabaseHandlerMixin:
         @functools.wraps(method)
         def wrapper(cls, *args, **kwargs):
             entry = method(cls, *args, **kwargs)
-            # Return either the entry or its view (implicitly confirming authorizatio)
+            # Return either the entry or its view (implicitly confirming authorization)
             entry_id = getattr(entry, entry.primary_key_field.name)
             entry = cls.get_entry(entry_id)
             return entry
@@ -413,7 +413,7 @@ class DatabaseHandlerMixin:
 
         Accept a mapping relating given inputs to database fields. This
         mapping is used to update an existing entry in the database. All
-        fields are sanitized prior to updating.
+        fields are sanitized prior to updating (via SQLAlchemy).
 
         Parameters
         ----------

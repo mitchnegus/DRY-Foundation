@@ -88,7 +88,8 @@ class AuthorizedAccessMixin:
         ----------
         *args :
             The arguments to pass to the `sqlalchemy.select` function.
-            If no arguments are given, the query selects the
+            If no arguments are given, the query selects for only this
+            model.
         guaranteed_joins : tuple
             Database models (and by extension, their tables) that are
             not included in this model's "user ID join chain" but which
