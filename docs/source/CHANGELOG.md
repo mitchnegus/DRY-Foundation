@@ -82,6 +82,11 @@
 - Fix minor bugs in the CLI launcher
 - Add testing for Python 3.14
 
-## 1.6.4
+### 1.6.4
 
 - Allow `TestingConfig` to still use custom configuration path overrides
+
+
+## 2.0.0 (in progress)
+
+- Add a `ModelView` object to guard against database alterations for views

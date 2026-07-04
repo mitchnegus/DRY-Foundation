@@ -5,7 +5,7 @@ ORM model definitions corresponding to tables in the SQLite database.
 from datetime import date
 
 from flask import g
-from sqlalchemy import select
+from sqlalchemy import event, select
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import DeclarativeBase, declared_attr
 
@@ -122,3 +122,22 @@ class AuthorizedAccessMixin:
             query = query.join_from(from_arg, target_arg)
             from_arg = target_arg
         return query
+
+
+class ModelView(Model):
+    """A base class for ORM models mapped to database views (read-only)."""
+
+    __abstract__ = True
+
+    @classmethod
+    def __init_subclass__(cls, **kwargs):
+        super().__init_subclass__(**kwargs)
+        event.listen(cls, "before_insert", cls._raise_on_write)
+        event.listen(cls, "before_update", cls._raise_on_write)
+        event.listen(cls, "before_delete", cls._raise_on_write)
+
+    @staticmethod
+    def _raise_on_write(mapper, connection, target):
+        raise TypeError(
+            f"`{type(target).__name__}` is mapped to a database view and is read-only."
+        )

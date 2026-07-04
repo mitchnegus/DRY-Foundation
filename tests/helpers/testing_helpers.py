@@ -5,7 +5,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.schema import ForeignKey, ForeignKeyConstraint
 
 from dry_foundation import DryFlask, Factory
-from dry_foundation.database.models import AuthorizedAccessMixin, Model
+from dry_foundation.database.models import AuthorizedAccessMixin, Model, ModelView
 from dry_foundation.database.schema import View
 
 
@@ -60,7 +60,7 @@ class AlternateAuthorizedEntry(AuthorizedAccessMixin, Model):
     )
 
 
-class AlternateAuthorizedEntryView(AuthorizedAccessMixin, Model):
+class AlternateAuthorizedEntryView(AuthorizedAccessMixin, ModelView):
     # Use the hybrid declarative style for the view
     __table__ = View(
         "alt_authorized_entries_view",

@@ -3,11 +3,20 @@
 from unittest.mock import Mock, call, patch
 
 import pytest
+from flask import current_app
+from sqlalchemy import select
 
-from testing_helpers import AuthorizedEntry, Entry
+from testing_helpers import (
+    AlternateAuthorizedEntry,
+    AlternateAuthorizedEntryView,
+    AuthorizedEntry,
+    Entry,
+)
 
 
 class TestModels:
+    """Test generic ``Model`` objects."""
+
     def test_model_initialization(self):
         mapping = {
             "x": 1,
@@ -37,6 +46,8 @@ class TestModels:
 
 
 class TestAuthorizedModels:
+    """Test models with authorization."""
+
     def test_user_id_join_chain(self):
         assert AuthorizedEntry.user_id_model is Entry
 
@@ -101,3 +112,29 @@ class TestAuthorizedModels:
             pytest.raises(AttributeError),
         ):
             AuthorizedEntry.select_for_user()
+
+
+class TestModelView:
+    """Test generic ``ModelView`` objects."""
+
+    @pytest.fixture
+    def alternate_authorized_entry_view(self, client_context):
+        query = select(AlternateAuthorizedEntry).where(AlternateAuthorizedEntry.p == 1)
+        alternate_authorized_entry = current_app.db.session.execute(query).scalar()
+        return alternate_authorized_entry.view
+
+    def test_insert_raises(self, client_context):
+        alternate_authorized_entry_view = AlternateAuthorizedEntryView(p=5, q=3, r=8)
+        current_app.db.session.add(alternate_authorized_entry_view)
+        with pytest.raises(TypeError, match="mapped to a database view"):
+            current_app.db.session.flush()
+
+    def test_update_raises(self, alternate_authorized_entry_view):
+        alternate_authorized_entry_view.q = 2
+        with pytest.raises(TypeError, match="mapped to a database view"):
+            current_app.db.session.flush()
+
+    def test_delete_raises(self, alternate_authorized_entry_view):
+        current_app.db.session.delete(alternate_authorized_entry_view)
+        with pytest.raises(TypeError, match="mapped to a database view"):
+            current_app.db.session.flush()
