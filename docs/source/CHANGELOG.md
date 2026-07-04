@@ -79,3 +79,4 @@
 
 - Transition to using uv and `just` for task management
 - Fix thread-unsafe view context state in `DatabaseViewHandlerMixin`
+- Fix minor bugs in the CLI launcher

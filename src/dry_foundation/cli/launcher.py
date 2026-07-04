@@ -28,13 +28,12 @@ class Launcher:
         # Set attributes to govern launch control flow
         self.host = host if host else "127.0.0.1"
         self.port = port if port else mode_type.default_port
-        self.app = self._initialize_application(context)
+        self._app = self._initialize_application(context)
 
     def _initialize_application(self, context):
-        application = self._build_application(context)
+        self._build_application(context)
         if not self.is_loaded:
             init_db()
-        return application
 
     def _build_application(self, context):
         self._app_mode = self.mode_type(context, host=self.host, port=self.port)
@@ -90,7 +89,7 @@ class Launcher:
 
     @is_loaded.setter
     def is_loaded(self, value):
-        self._set_booean_env_variable(self._loaded_env_var, value)
+        self._set_boolean_env_variable(self._loaded_env_var, value)
 
     @property
     def has_browser(self):
@@ -98,7 +97,7 @@ class Launcher:
 
     @has_browser.setter
     def has_browser(self, value):
-        self._set_booean_env_variable(self._browser_env_var, value)
+        self._set_boolean_env_variable(self._browser_env_var, value)
 
     @staticmethod
     def _get_boolean_env_variable(name):
@@ -107,8 +106,8 @@ class Launcher:
         return bool(json.loads(value) if value else value)
 
     @staticmethod
-    def _set_booean_env_variable(name, value):
+    def _set_boolean_env_variable(name, value):
         if value:
             os.environ[name] = "true"
         else:
-            os.environ.pop(name)
+            os.environ.pop(name, None)
