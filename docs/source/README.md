@@ -89,7 +89,8 @@ def create_app(config=None):
 For a more complete, up-to-date API reference, build and read the docs:
 
 ```bash
-make docs
+# Using `just`: https://just.systems/
+just docs
 # open `docs/build/html/index.html` in your browser
 ```
 
