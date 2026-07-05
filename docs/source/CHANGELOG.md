@@ -89,5 +89,6 @@
 
 ## 2.0.0 (in progress)
 
+- Rename handlers to reflect that they are implementing repository behavior
 - Split database handler `add_match_filter` method into methods for singular and iterable arguments (`add_membership_filter`)
 - Add a `ModelView` object to guard against database alterations for views

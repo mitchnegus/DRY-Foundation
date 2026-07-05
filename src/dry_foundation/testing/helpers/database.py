@@ -11,8 +11,8 @@ from sqlalchemy.sql.expression import func
 from werkzeug.exceptions import NotFound
 
 
-class TestHandler:
-    """A base class for testing database handlers."""
+class TestRepository:
+    """A base class for testing database repositories."""
 
     @pytest.fixture(autouse=True)
     def _get_app(self, app):
@@ -76,22 +76,22 @@ class TestHandler:
             f"\n\t   found matches: {count}"
         )
 
-    def assert_invalid_user_entry_add_fails(self, handler, mapping):
+    def assert_invalid_user_entry_add_fails(self, repo, mapping):
         # Count the original number of entries
-        query = select(func.count(handler.model.primary_key_field))
+        query = select(func.count(repo.model.primary_key_field))
         entry_count = self._app.db.session.execute(query).scalar()
         # Ensure that the mapping cannot be added for the invalid user
         with pytest.raises(NotFound):
-            handler.add_entry(**mapping)
+            repo.add_entry(**mapping)
         # Rollback and ensure that an entry was not added
         self._app.db.close()
-        self.assert_number_of_matches(entry_count, handler.model.primary_key_field)
+        self.assert_number_of_matches(entry_count, repo.model.primary_key_field)
 
-    def assert_entry_deletion_succeeds(self, handler, entry_id):
-        handler.delete_entry(entry_id)
+    def assert_entry_deletion_succeeds(self, repo, entry_id):
+        repo.delete_entry(entry_id)
         # Check that the entry was deleted
         self.assert_number_of_matches(
             0,
-            handler.model.primary_key_field,
-            handler.model.primary_key_field == entry_id,
+            repo.model.primary_key_field,
+            repo.model.primary_key_field == entry_id,
         )

@@ -1,4 +1,4 @@
-"""Tests for the database handlers."""
+"""Tests for the database repositories."""
 
 from types import SimpleNamespace
 from unittest.mock import Mock, patch
@@ -7,12 +7,8 @@ import pytest
 from sqlalchemy.exc import IntegrityError
 from werkzeug.exceptions import NotFound
 
-from dry_foundation.database.handler import (
-    DatabaseHandler,
-    DatabaseViewHandler,
-    QueryCriteria,
-)
-from dry_foundation.testing.helpers import TestHandler
+from dry_foundation.database.repository import QueryCriteria, Repository, ViewRepository
+from dry_foundation.testing.helpers import TestRepository as _TestRepository
 
 from testing_helpers import (
     AlternateAuthorizedEntry,
@@ -26,7 +22,7 @@ from testing_helpers import (
 def mock_global_namespace(client_context):
     with (
         patch(
-            "dry_foundation.database.handler.g", new_callable=SimpleNamespace
+            "dry_foundation.database.repository.g", new_callable=SimpleNamespace
         ) as mock_global_namespace,
         patch("dry_foundation.database.models.g", new=mock_global_namespace),
     ):
@@ -41,35 +37,35 @@ def mock_user_context(mock_global_namespace):
     return mock_global_namespace
 
 
-class EntryHandler(DatabaseHandler, model=Entry):
-    """A minimal database handler for testing."""
+class EntryRepository(Repository, model=Entry):
+    """A minimal repository for testing."""
 
 
 @pytest.fixture
-def entry_handler(mock_user_context):
-    return EntryHandler
+def entry_repo(mock_user_context):
+    return EntryRepository
 
 
-class AuthorizedEntryHandler(DatabaseHandler, model=AuthorizedEntry):
-    """A minimal database handler for testing."""
+class AuthorizedEntryRepository(Repository, model=AuthorizedEntry):
+    """A minimal repository for testing."""
 
 
 @pytest.fixture
-def authorized_entry_handler(mock_user_context):
-    return AuthorizedEntryHandler
+def authorized_entry_repo(mock_user_context):
+    return AuthorizedEntryRepository
 
 
-class AlternateAuthorizedEntryViewHandler(
-    DatabaseViewHandler,
+class AlternateAuthorizedEntryViewRepository(
+    ViewRepository,
     model=AlternateAuthorizedEntry,
     model_view=AlternateAuthorizedEntryView,
 ):
-    """A minimal database view handler for testing."""
+    """A minimal view repository for testing."""
 
 
 @pytest.fixture
-def view_handler(mock_user_context):
-    return AlternateAuthorizedEntryViewHandler
+def view_repo(mock_user_context):
+    return AlternateAuthorizedEntryViewRepository
 
 
 @pytest.fixture
@@ -135,8 +131,8 @@ def alt_authorized_entry_criteria_r_empty():
     return criteria
 
 
-class TestDatabaseHandler(TestHandler):
-    """Tests for generic database handlers."""
+class TestGenericRepository(_TestRepository):
+    """Tests for generic database repositories."""
 
     # Reference only includes authorized entries accessible to user ID 1
     db_reference = [
@@ -148,13 +144,13 @@ class TestDatabaseHandler(TestHandler):
         AuthorizedEntry(a=2, b="two", c=1),
     ]
 
-    def test_initialization(self, entry_handler):
-        assert entry_handler.model == Entry
-        assert entry_handler.table.name == "entries"
-        assert entry_handler.user_id == 1
+    def test_initialization(self, entry_repo):
+        assert entry_repo.model == Entry
+        assert entry_repo.table.name == "entries"
+        assert entry_repo.user_id == 1
 
-    def test_get_entries_by_id(self, entry_handler):
-        entries = entry_handler.get_entries((1, 2))
+    def test_get_entries_by_id(self, entry_repo):
+        entries = entry_repo.get_entries((1, 2))
         self.assert_entries_match(entries, self.db_reference[:2])
 
     @pytest.mark.parametrize(
@@ -166,8 +162,8 @@ class TestDatabaseHandler(TestHandler):
         ],
         indirect=["criteria"],
     )
-    def test_get_entries_by_criteria(self, entry_handler, criteria, reference_entries):
-        entries = entry_handler.get_entries(criteria=criteria)
+    def test_get_entries_by_criteria(self, entry_repo, criteria, reference_entries):
+        entries = entry_repo.get_entries(criteria=criteria)
         self.assert_entries_match(entries, reference_entries)
 
     @pytest.mark.parametrize(
@@ -179,8 +175,8 @@ class TestDatabaseHandler(TestHandler):
             (None, 2, db_reference[:2]),
         ],
     )
-    def test_get_entries_subset(self, entry_handler, offset, limit, reference_entries):
-        entries = entry_handler.get_entries(offset=offset, limit=limit)
+    def test_get_entries_subset(self, entry_repo, offset, limit, reference_entries):
+        entries = entry_repo.get_entries(offset=offset, limit=limit)
         self.assert_entries_match(entries, reference_entries)
 
     @pytest.mark.parametrize(
@@ -196,8 +192,8 @@ class TestDatabaseHandler(TestHandler):
             ({Entry.y: "ASC", Entry.x: "DESC"}, db_reference[3::-1]),
         ],
     )
-    def test_get_sorted_entries(self, entry_handler, column_orders, reference_entries):
-        entries = entry_handler.get_entries(column_orders=column_orders)
+    def test_get_sorted_entries(self, entry_repo, column_orders, reference_entries):
+        entries = entry_repo.get_entries(column_orders=column_orders)
         self.assert_entries_match(entries, reference_entries)
 
     @pytest.mark.parametrize(
@@ -207,11 +203,9 @@ class TestDatabaseHandler(TestHandler):
             ({"x": "TEST"}, ValueError),
         ],
     )
-    def test_get_sorted_entries_invalid(
-        self, entry_handler, column_orders, expectation
-    ):
+    def test_get_sorted_entries_invalid(self, entry_repo, column_orders, expectation):
         with pytest.raises(expectation):
-            entry_handler.get_entries(column_orders=column_orders)
+            entry_repo.get_entries(column_orders=column_orders)
 
     @pytest.mark.parametrize(
         ("criteria", "reference_entries"),
@@ -223,9 +217,9 @@ class TestDatabaseHandler(TestHandler):
         indirect=["criteria"],
     )
     def test_get_authorized_entries(
-        self, authorized_entry_handler, criteria, reference_entries
+        self, authorized_entry_repo, criteria, reference_entries
     ):
-        authorized_entries = authorized_entry_handler.get_entries(criteria=criteria)
+        authorized_entries = authorized_entry_repo.get_entries(criteria=criteria)
         self.assert_entries_match(authorized_entries, reference_entries)
 
     @pytest.mark.parametrize(
@@ -235,8 +229,8 @@ class TestDatabaseHandler(TestHandler):
             (3, db_reference[2]),
         ],
     )
-    def test_get_entry(self, entry_handler, entry_id, reference_entry):
-        entry = entry_handler.get_entry(entry_id)
+    def test_get_entry(self, entry_repo, entry_id, reference_entry):
+        entry = entry_repo.get_entry(entry_id)
         self.assert_entry_matches(entry, reference_entry)
 
     @pytest.mark.parametrize(
@@ -247,9 +241,9 @@ class TestDatabaseHandler(TestHandler):
         ],
     )
     def test_get_authorized_entry(
-        self, authorized_entry_handler, authorized_entry_id, reference_entry
+        self, authorized_entry_repo, authorized_entry_id, reference_entry
     ):
-        authorized_entry = authorized_entry_handler.get_entry(authorized_entry_id)
+        authorized_entry = authorized_entry_repo.get_entry(authorized_entry_id)
         self.assert_entry_matches(authorized_entry, reference_entry)
 
     @pytest.mark.parametrize(
@@ -260,10 +254,10 @@ class TestDatabaseHandler(TestHandler):
         ],
     )
     def test_get_authorized_entry_invalid(
-        self, authorized_entry_handler, authorized_entry_id, exception
+        self, authorized_entry_repo, authorized_entry_id, exception
     ):
         with pytest.raises(exception):
-            authorized_entry_handler.get_entry(authorized_entry_id)
+            authorized_entry_repo.get_entry(authorized_entry_id)
 
     @pytest.mark.parametrize(
         ("criteria", "reference_entry"),
@@ -273,17 +267,17 @@ class TestDatabaseHandler(TestHandler):
         ],
         indirect=["criteria"],
     )
-    def test_find_entry(self, entry_handler, criteria, reference_entry):
-        entry = entry_handler.find_entry(criteria=criteria)
+    def test_find_entry(self, entry_repo, criteria, reference_entry):
+        entry = entry_repo.find_entry(criteria=criteria)
         if reference_entry is None:
             assert entry is None
         else:
             self.assert_entry_matches(entry, reference_entry)
 
-    def test_find_non_unique_entry(self, entry_handler):
+    def test_find_non_unique_entry(self, entry_repo):
         criteria = QueryCriteria()
         criteria.add_match_filter(Entry, "user_id", 1)
-        entry = entry_handler.find_entry(criteria=criteria, require_unique=False)
+        entry = entry_repo.find_entry(criteria=criteria, require_unique=False)
         self.assert_entry_matches(entry, self.db_reference[0])
 
     @pytest.mark.parametrize(
@@ -294,8 +288,8 @@ class TestDatabaseHandler(TestHandler):
             {"x": 7, "y": "thirty", "user_id": 2},
         ],
     )
-    def test_add_entry(self, entry_handler, mapping):
-        entry = entry_handler.add_entry(**mapping)
+    def test_add_entry(self, entry_repo, mapping):
+        entry = entry_repo.add_entry(**mapping)
         # Check that the entry object was properly created
         assert entry.y == "thirty"
         # Check that the entry was added to the database
@@ -308,9 +302,9 @@ class TestDatabaseHandler(TestHandler):
             ({"x": 4, "user_id": 1}, IntegrityError),
         ],
     )
-    def test_add_entry_invalid(self, entry_handler, mapping, exception):
+    def test_add_entry_invalid(self, entry_repo, mapping, exception):
         with pytest.raises(exception):
-            entry_handler.add_entry(**mapping)
+            entry_repo.add_entry(**mapping)
 
     @pytest.mark.parametrize(
         "mapping",
@@ -320,8 +314,8 @@ class TestDatabaseHandler(TestHandler):
             {"a": 4, "b": "four", "c": 2},
         ],
     )
-    def test_add_authorized_entry(self, authorized_entry_handler, mapping):
-        authorized_entry = authorized_entry_handler.add_entry(**mapping)
+    def test_add_authorized_entry(self, authorized_entry_repo, mapping):
+        authorized_entry = authorized_entry_repo.add_entry(**mapping)
         # Check that the entry object was properly created
         assert authorized_entry.b == "four"
         # Check that the entry was added to the database
@@ -335,19 +329,19 @@ class TestDatabaseHandler(TestHandler):
         ],
     )
     def test_add_authorized_entry_invalid(
-        self, authorized_entry_handler, mapping, exception
+        self, authorized_entry_repo, mapping, exception
     ):
         with pytest.raises(exception):
-            authorized_entry_handler.add_entry(**mapping)
+            authorized_entry_repo.add_entry(**mapping)
 
-    def test_add_authorized_entry_invalid_user(self, authorized_entry_handler):
+    def test_add_authorized_entry_invalid_user(self, authorized_entry_repo):
         mapping = {
             "a": 4,
             "b": "four",
             "c": 4,  # foreign key mapping to an entry with user ID 2
         }
         # Ensure that user with ID 1 cannot add an entry linked to user with ID 2
-        self.assert_invalid_user_entry_add_fails(authorized_entry_handler, mapping)
+        self.assert_invalid_user_entry_add_fails(authorized_entry_repo, mapping)
 
     @pytest.mark.parametrize(
         "mapping",
@@ -357,8 +351,8 @@ class TestDatabaseHandler(TestHandler):
             {"y": "test"},
         ],
     )
-    def test_update_entry(self, entry_handler, mapping):
-        entry = entry_handler.update_entry(2, **mapping)
+    def test_update_entry(self, entry_repo, mapping):
+        entry = entry_repo.update_entry(2, **mapping)
         # Check that the entry object was properly updated
         assert entry.y == "test"
         # Check that the entry was updated in the database
@@ -373,9 +367,9 @@ class TestDatabaseHandler(TestHandler):
             (5, {"y": "test", "user_id": 1}, NotFound),
         ],
     )
-    def test_update_entry_invalid(self, entry_handler, entry_id, mapping, exception):
+    def test_update_entry_invalid(self, entry_repo, entry_id, mapping, exception):
         with pytest.raises(exception):
-            entry_handler.update_entry(entry_id, **mapping)
+            entry_repo.update_entry(entry_id, **mapping)
 
     @pytest.mark.parametrize(
         "mapping",
@@ -384,8 +378,8 @@ class TestDatabaseHandler(TestHandler):
             {"b": "test"},
         ],
     )
-    def test_update_authorized_entry(self, authorized_entry_handler, mapping):
-        authorized_entry = authorized_entry_handler.update_entry(2, **mapping)
+    def test_update_authorized_entry(self, authorized_entry_repo, mapping):
+        authorized_entry = authorized_entry_repo.update_entry(2, **mapping)
         # Check that the entry object was properly updated
         assert authorized_entry.b == "test"
         # Check that the entry was updated in the database
@@ -407,14 +401,14 @@ class TestDatabaseHandler(TestHandler):
         ],
     )
     def test_update_authorized_entry_invalid(
-        self, authorized_entry_handler, authorized_entry_id, mapping, exception
+        self, authorized_entry_repo, authorized_entry_id, mapping, exception
     ):
         with pytest.raises(exception):
-            authorized_entry_handler.update_entry(authorized_entry_id, **mapping)
+            authorized_entry_repo.update_entry(authorized_entry_id, **mapping)
 
     @pytest.mark.parametrize("entry_id", [2, 3])
-    def test_delete_entry(self, entry_handler, entry_id):
-        self.assert_entry_deletion_succeeds(entry_handler, entry_id)
+    def test_delete_entry(self, entry_repo, entry_id):
+        self.assert_entry_deletion_succeeds(entry_repo, entry_id)
         # Check that any cascading entries were deleted
         self.assert_number_of_matches(
             0, AuthorizedEntry.a, AuthorizedEntry.c == entry_id
@@ -426,17 +420,13 @@ class TestDatabaseHandler(TestHandler):
             (5, NotFound),  # should not be able to delete nonexistent entries
         ],
     )
-    def test_delete_entry_invalid(self, entry_handler, entry_id, exception):
+    def test_delete_entry_invalid(self, entry_repo, entry_id, exception):
         with pytest.raises(exception):
-            entry_handler.delete_entry(entry_id)
+            entry_repo.delete_entry(entry_id)
 
     @pytest.mark.parametrize("authorized_entry_id", [1, 2])
-    def test_delete_authorized_entry(
-        self, authorized_entry_handler, authorized_entry_id
-    ):
-        self.assert_entry_deletion_succeeds(
-            authorized_entry_handler, authorized_entry_id
-        )
+    def test_delete_authorized_entry(self, authorized_entry_repo, authorized_entry_id):
+        self.assert_entry_deletion_succeeds(authorized_entry_repo, authorized_entry_id)
         # Check that any cascading entries were deleted
         self.assert_number_of_matches(
             0,
@@ -452,14 +442,14 @@ class TestDatabaseHandler(TestHandler):
         ],
     )
     def test_delete_authorized_entry_invalid(
-        self, authorized_entry_handler, authorized_entry_id, exception
+        self, authorized_entry_repo, authorized_entry_id, exception
     ):
         with pytest.raises(exception):
-            authorized_entry_handler.delete_entry(authorized_entry_id)
+            authorized_entry_repo.delete_entry(authorized_entry_id)
 
 
-class TestDatabaseViewHandler(TestHandler):
-    """Tests for generic database view handlers."""
+class TestGenericViewRepository(_TestRepository):
+    """Tests for generic database view repositories."""
 
     # Reference only includes authorized entries accessible to user ID 1
     db_reference = [
@@ -468,16 +458,16 @@ class TestDatabaseViewHandler(TestHandler):
         AlternateAuthorizedEntryView(p=3, q=2, r=5),
     ]
 
-    def test_initialization(self, view_handler):
-        assert view_handler.model == AlternateAuthorizedEntry
-        assert view_handler.table.name == "alt_authorized_entries"
-        assert view_handler.table_view.name == "alt_authorized_entries_view"
-        assert view_handler.user_id == 1
+    def test_initialization(self, view_repo):
+        assert view_repo.model == AlternateAuthorizedEntry
+        assert view_repo.table.name == "alt_authorized_entries"
+        assert view_repo.table_view.name == "alt_authorized_entries_view"
+        assert view_repo.user_id == 1
 
-    def test_model_view_access(self, mock_global_namespace, view_handler):
-        assert view_handler.model == AlternateAuthorizedEntry
-        mock_global_namespace.view_contexts[view_handler.__name__] = True
-        assert view_handler.model == AlternateAuthorizedEntryView
+    def test_model_view_access(self, mock_global_namespace, view_repo):
+        assert view_repo.model == AlternateAuthorizedEntry
+        mock_global_namespace.view_contexts[view_repo.__name__] = True
+        assert view_repo.model == AlternateAuthorizedEntryView
 
     @pytest.mark.parametrize(
         ("criteria", "reference_entries"),
@@ -488,10 +478,8 @@ class TestDatabaseViewHandler(TestHandler):
         ],
         indirect=["criteria"],
     )
-    def test_get_authorized_entries_view(
-        self, view_handler, criteria, reference_entries
-    ):
-        alt_authorized_entries = view_handler.get_entries(criteria=criteria)
+    def test_get_authorized_entries_view(self, view_repo, criteria, reference_entries):
+        alt_authorized_entries = view_repo.get_entries(criteria=criteria)
         self.assert_entries_match(alt_authorized_entries, reference_entries)
 
     @pytest.mark.parametrize(
@@ -502,9 +490,9 @@ class TestDatabaseViewHandler(TestHandler):
         ],
     )
     def test_get_authorized_entry_view(
-        self, view_handler, alt_authorized_entry_id, reference_entry
+        self, view_repo, alt_authorized_entry_id, reference_entry
     ):
-        alt_authorized_entry = view_handler.get_entry(alt_authorized_entry_id)
+        alt_authorized_entry = view_repo.get_entry(alt_authorized_entry_id)
         self.assert_entry_matches(alt_authorized_entry, reference_entry)
 
     @pytest.mark.parametrize(
@@ -515,10 +503,10 @@ class TestDatabaseViewHandler(TestHandler):
         ],
     )
     def test_get_authorized_entry_view_invalid(
-        self, view_handler, alt_authorized_entry_id, exception
+        self, view_repo, alt_authorized_entry_id, exception
     ):
         with pytest.raises(exception):
-            view_handler.get_entry(alt_authorized_entry_id)
+            view_repo.get_entry(alt_authorized_entry_id)
 
     @pytest.mark.parametrize(
         ("criteria", "reference_entry"),
@@ -527,8 +515,8 @@ class TestDatabaseViewHandler(TestHandler):
         ],
         indirect=["criteria"],
     )
-    def test_find_authorized_entry_view(self, view_handler, criteria, reference_entry):
-        entry = view_handler.find_entry(criteria=criteria)
+    def test_find_authorized_entry_view(self, view_repo, criteria, reference_entry):
+        entry = view_repo.find_entry(criteria=criteria)
         self.assert_entry_matches(entry, reference_entry)
 
     @pytest.mark.parametrize(
@@ -536,13 +524,13 @@ class TestDatabaseViewHandler(TestHandler):
         ["alt_authorized_entry_criteria_r_empty", None],
         indirect=True,
     )
-    def test_find_authorized_entry_view_none_exist(self, view_handler, criteria):
-        view = view_handler.find_entry(criteria=criteria)
+    def test_find_authorized_entry_view_none_exist(self, view_repo, criteria):
+        view = view_repo.find_entry(criteria=criteria)
         assert view is None
 
     @pytest.mark.parametrize("mapping", [{"p": 5, "q": 2}, {"p": 6, "q": 2}])
-    def test_add_authorized_entry_view(self, view_handler, mapping):
-        alt_authorized_entry_view = view_handler.add_entry(**mapping)
+    def test_add_authorized_entry_view(self, view_repo, mapping):
+        alt_authorized_entry_view = view_repo.add_entry(**mapping)
         # Check that the entry object was properly created
         # (even though views cannot be created directly)
         assert alt_authorized_entry_view.q == 2
@@ -559,21 +547,21 @@ class TestDatabaseViewHandler(TestHandler):
             ({"p": 5}, IntegrityError),
         ],
     )
-    def test_add_authorized_entry_view_invalid(self, view_handler, mapping, exception):
+    def test_add_authorized_entry_view_invalid(self, view_repo, mapping, exception):
         with pytest.raises(exception):
-            view_handler.add_entry(**mapping)
+            view_repo.add_entry(**mapping)
 
-    def test_add_authorized_entry_view_invalid_user(self, view_handler):
+    def test_add_authorized_entry_view_invalid_user(self, view_repo):
         mapping = {
             "p": 5,
             "q": 3,  # foreign key mapping to an entry with user ID 2
         }
         # Ensure that user with ID 1 cannot add an entry linked to user ID 2
-        self.assert_invalid_user_entry_add_fails(view_handler, mapping)
+        self.assert_invalid_user_entry_add_fails(view_repo, mapping)
 
     @pytest.mark.parametrize("mapping", [{"p": 1, "q": 2}, {"q": 2}])
-    def test_update_authorized_entry_view(self, view_handler, mapping):
-        alt_authorized_entry_view = view_handler.update_entry(1, **mapping)
+    def test_update_authorized_entry_view(self, view_repo, mapping):
+        alt_authorized_entry_view = view_repo.update_entry(1, **mapping)
         # Check that the entry object was properly updated
         assert alt_authorized_entry_view.q == 2
         # Check that the entry was updated in the database
@@ -595,14 +583,14 @@ class TestDatabaseViewHandler(TestHandler):
         ],
     )
     def test_update_authorized_entry_view_invalid(
-        self, view_handler, alt_authorized_entry_id, mapping, exception
+        self, view_repo, alt_authorized_entry_id, mapping, exception
     ):
         with pytest.raises(exception):
-            view_handler.update_entry(alt_authorized_entry_id, **mapping)
+            view_repo.update_entry(alt_authorized_entry_id, **mapping)
 
     @pytest.mark.parametrize("alt_authorized_entry_id", [1, 2])
-    def test_delete_entry_view(self, view_handler, alt_authorized_entry_id):
-        self.assert_entry_deletion_succeeds(view_handler, alt_authorized_entry_id)
+    def test_delete_entry_view(self, view_repo, alt_authorized_entry_id):
+        self.assert_entry_deletion_succeeds(view_repo, alt_authorized_entry_id)
         # Check that the cascading entries were deleted
         self.assert_number_of_matches(
             0,
@@ -618,10 +606,10 @@ class TestDatabaseViewHandler(TestHandler):
         ],
     )
     def test_delete_entry_view_invalid(
-        self, view_handler, alt_authorized_entry_id, exception
+        self, view_repo, alt_authorized_entry_id, exception
     ):
         with pytest.raises(exception):
-            view_handler.delete_entry(alt_authorized_entry_id)
+            view_repo.delete_entry(alt_authorized_entry_id)
 
 
 class TestQueryCriteria:

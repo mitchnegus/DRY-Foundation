@@ -43,16 +43,10 @@ The persistent test database is used by default, but a `transaction_lifetime` de
 [^mocking]: Yes, you could also just not create databases and mock the database return functions, but my experience has been that it is even more tedious to maintain a comprehensive set of mocked data to test various intricacies and edge cases while simultaneously ensuring that the mocks behave similarly enough to SQLAlchemy objects.
 
 
-### Authorization and Data Handlers
+### Repositories and Authorization
 
-The common operations are easy to do using SQLAlchemy, but rather than rolling new functions for each new query in every application, this tool provides a set of handlers that are designed to abstract away a bunch of the tedious details.
-Also, my experience is that enforcing authorization constraints when manipulating sophisticated table relationships can be tricky, and so this tool and its handlers provide an interface for managing those authorizations consistently.
-
-It's possible I'm missing a key functionality of SQLAlchemy that enables this behavior elegantly, but I haven't found a satisfiably clean way to do it yet.
-Until I become so enlightened, this package creates an interface where each model may define the chain of joins required to establish whether it belongs to an authorized user, and then a handler to query the database and perform those joins for each query.
-This is designed to be extensible, since I often want this behavior available for the majority of ORM models in my application.
-
-If you happen to read this and think "This dude's dumb; why on Earth didn't he use _this_ functionality baked into SQLAlchemy?" drop me a line because I'm interested to know what I'm missing.
+The common operations are easy to do using SQLAlchemy, but rather than rolling new functions for each new query in every application, this tool provides a set of repositories that are designed to abstract away a bunch of the tedious details.
+Also, my experience is that enforcing authorization constraints when manipulating sophisticated table relationships can be tricky, and so this tool and its repositories provide an interface for managing those authorizations consistently.
 
 
 ## Installation

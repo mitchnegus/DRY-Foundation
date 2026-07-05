@@ -1,5 +1,5 @@
 """
-A database handler for facilitating interactions with the SQLite database.
+Repositories for facilitating interactions with the SQLite database.
 """
 
 import functools
@@ -14,19 +14,19 @@ from werkzeug.exceptions import abort
 from .utils import validate_sort_order
 
 
-class DatabaseHandlerMeta(ABCMeta):
+class RepositoryMeta(ABCMeta):
     """
-    A metaclass defining a universal API for database handlers.
+    A metaclass defining a universal API for database repositories.
 
-    All database handlers provide access to the database focusing
-    primarily on access to a specific SQLAlchemy ORM model. Although
-    the model and many of the associated methods vary depending on the
-    handler and the model's role, the overall pattern remains relatively
-    consistent across handlers. Because of that, this metaclass
-    prescribes those common behaviors. When a model-specific handler is
-    defined, a model must be provided as a keyword argument to the
-    metaclass. This model is set on that model-specific class, and is
-    accessed using the corresponding property defined by this metaclass.
+    All repositories provide access to the database focusing primarily
+    on access to a specific SQLAlchemy ORM model. Although the model and
+    many of the associated methods vary depending on the repository and
+    the model's role, the overall pattern remains relatively consistent
+    across repositories. Because of that, this metaclass prescribes
+    those common behaviors. When a model-specific repository is defined,
+    a model must be provided as a keyword argument to the metaclass.
+    This model is set on that model-specific class, and is accessed
+    using the corresponding property defined by this metaclass.
     """
 
     def __new__(mcls, name, bases, namespace, **kwargs):
@@ -56,21 +56,21 @@ class DatabaseHandlerMeta(ABCMeta):
         value = cls.__dict__.get(name)
         if value is not None:
             return value
-        # The handler subclass must have given the attribute a value to be valid
+        # The repository subclass must have given the attribute a value to be valid
         raise NotImplementedError(f"Define a value for '{name}' in this subclass.")
 
 
-class DatabaseViewHandlerMeta(DatabaseHandlerMeta):
+class ViewRepositoryMeta(RepositoryMeta):
     """
-    A metaclass defining a universal API for database view handlers.
+    A metaclass defining a universal API for view repositories.
 
-    Similar to the ``DatabaseHandlerMeta``, this metasubclass defines a
-    consistent set of behaviors for database handlers that focus on a
-    model based on a database view (rather than a native database
-    component). Since the ORM model views managed by a handler each have
-    a corresponding model (based on a native database component), that
-    component and the view are specified when defining a model-specific
-    handler.
+    Similar to the ``RepositoryMeta``, this metasubclass defines a
+    consistent set of behaviors for database repositories that focus on
+    a model based on a database view (rather than a native database
+    component). Since the ORM model views managed by a repository each
+    have a corresponding model (based on a native database component),
+    that component and the view are specified when defining a model-
+    specific repository.
     """
 
     def __new__(mcls, name, bases, namespace, **kwargs):
@@ -102,7 +102,7 @@ class DatabaseViewHandlerMeta(DatabaseHandlerMeta):
 
 class QueryCriteria(UserList):
     """
-    A helper object for constructing queries using a database handler.
+    A helper object for constructing queries using a repository.
     """
 
     def __init__(self):
@@ -160,17 +160,17 @@ class QueryCriteria(UserList):
         )
 
 
-class DatabaseHandlerMixin:
+class RepositoryMixin:
     """
-    A mixin providing the functionality of a database handler.
+    A mixin providing the functionality of a repository.
 
     Note
     ----
-    Tools relying on the database handler functionality (e.g., both the
-    ``DatabaseHandler`` and the ``DatabaseViewHandler``) may have different
+    Tools relying on the repository functionality (e.g., both the
+    ``Repository`` and the ``ViewRepository``) may have different
     metaclasses. This mixin allows the functionality of a database
-    handler to be shared by any objects that implement the database
-    handler interface.
+    repository to be shared by any objects that implement the repository
+    interface.
     """
 
     _initialize_criteria_list = QueryCriteria
@@ -300,8 +300,9 @@ class DatabaseHandlerMixin:
             A numerical value limiting the returned results to a maximum
             count.
         **kwargs :
-            Keyword arguments that may be defined for specific handler
-            subclasses, passed directly to the SQL select call.
+            Keyword arguments that may be defined for specific
+            repository subclasses, passed directly to the SQL select
+            call.
 
         Returns
         -------
@@ -393,7 +394,7 @@ class DatabaseHandlerMixin:
         validated to ensure that it belongs to an authorized user. This
         method performs both functions: it takes the saved entry and
         queries the database for the up-to-date version, using the
-        handler logic to choose either the entry or the corresponding
+        repository logic to choose either the entry or the corresponding
         view; that process implicitly guarantees authorization.
         """
 
@@ -481,16 +482,16 @@ class DatabaseHandlerMixin:
         return cls.get_entry(entry_id)
 
 
-class DatabaseViewHandlerMixin(DatabaseHandlerMixin):
+class ViewRepositoryMixin(RepositoryMixin):
     """
-    A mixin providing the functionality of a database view handler.
+    A mixin providing the functionality of a view repository.
 
     Note
     ----
-    Tools relying on the database view handler functionality may have
+    Tools relying on the database view repository functionality may have
     different metaclasses. This mixin allows the functionality of a
-    database view handler to be shared by any objects that implement the
-    database view handler interface.
+    view repository to be shared by any objects that implement the view
+    repository interface.
     """
 
     def view_query(func):
@@ -540,7 +541,7 @@ class DatabaseViewHandlerMixin(DatabaseHandlerMixin):
 
         Notes
         -----
-        This method calls the parent handler's ``get_entry`` method,
+        This method calls the parent repository's ``get_entry`` method,
         because that method is executed outside the view context. The
         returned entry must not be a view for it to be manipulable.
         """
@@ -548,13 +549,13 @@ class DatabaseViewHandlerMixin(DatabaseHandlerMixin):
         return super().get_entry(entry_id)
 
 
-class DatabaseHandler(DatabaseHandlerMixin, metaclass=DatabaseHandlerMeta):
+class Repository(RepositoryMixin, metaclass=RepositoryMeta):
     """
-    A generic handler for database access.
+    A generic repository for database access.
 
-    Database handlers simplify commonly used database interactions.
+    Repositories simplify commonly used database interactions.
     Complicated queries can be reformulated as class methods, taking
-    variable arguments. The handler also performs user authentication
+    variable arguments. The repository also performs user authentication
     upon creation so that user authentication is not required for each
     query.
 
@@ -563,21 +564,21 @@ class DatabaseHandler(DatabaseHandlerMixin, metaclass=DatabaseHandlerMeta):
     user_id : int
         The ID of the user who is the subject of database access.
     model : type
-        The type of database model that the handler is primarily
+        The type of database model that the repository is primarily
         designed to manage.
     table : str
-        The name of the database table that this handler manages.
+        The name of the database table that this repository manages.
     """
 
     # All functionality is provided by the mixin
 
 
-class DatabaseViewHandler(DatabaseViewHandlerMixin, metaclass=DatabaseViewHandlerMeta):
+class ViewRepository(ViewRepositoryMixin, metaclass=ViewRepositoryMeta):
     """
-    A generic handler for database view access.
+    A generic repository for database view access.
 
-    The view handler imitates the behavior of the standard database
-    handler, but with minor customizations to allow the handler to
+    The view repository imitates the behavior of the standard database
+    repository, but with minor customizations to allow the repository to
     operate on database views, rather than native tables.
 
     Attributes
@@ -585,10 +586,10 @@ class DatabaseViewHandler(DatabaseViewHandlerMixin, metaclass=DatabaseViewHandle
     user_id : int
         The ID of the user who is the subject of database access.
     model : type
-        The type of database model that the handler is primarily
+        The type of database model that the repository is primarily
         designed to manage.
     table : str
-        The name of the database table that this handler manages.
+        The name of the database table that this repository manages.
     """
 
     # All functionality is provided by the mixin
