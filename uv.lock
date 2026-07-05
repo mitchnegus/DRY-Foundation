@@ -350,7 +350,7 @@ requires-dist = [
     { name = "beautifulsoup4", specifier = ">=4.14.2" },
     { name = "click", specifier = ">=8.2.0,<8.3" },
     { name = "flask", specifier = ">=2.2.2" },
-    { name = "flask-wtf", specifier = "==1.2.2" },
+    { name = "flask-wtf", specifier = ">=1.2.2" },
     { name = "gunicorn", specifier = ">=23.0.0" },
     { name = "pytest", specifier = ">=8.4.1" },
     { name = "sqlalchemy", specifier = ">=2.0.0" },
