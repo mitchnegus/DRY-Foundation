@@ -16,8 +16,8 @@ Here are some of the features explained in greater detail.
 
 ### Application Factories and Command Line Interfaces
 
-The Flask command line interface (CLI) provides a lot of functionality via it's Click backend.
-However, what if a user wishes to launch an application from the command line depending on a certain configuration.
+The Flask command line interface (CLI) provides a lot of functionality via its Click backend.
+However, users (e.g., me) may wish to launch an application from the command line depending on a certain configuration.
 The Flask documentation [shows an example of how to structure an application to leverage multiple configurations via objects](https://flask.palletsprojects.com/en/stable/config/#development-production), but leaves it up to a user to implement the mechanics of passing this configuration to the application via environment variable or some other script.
 
 This package takes a different approach, and provides tools to customize the CLI so that configurations can be loaded dynamically at runtime.
@@ -57,10 +57,10 @@ If you happen to read this and think "This dude's dumb; why on Earth didn't he u
 
 ## Installation
 
-_DRY Foundation_ is registered on the [Python Package Index (PyPI)](https://pypi.org/project/...) for easy installation.
+_DRY Foundation_ is registered on the [Python Package Index (PyPI)](https://pypi.org/project/dry-foundation/) for easy installation.
 To install the package, simply run
 
-```
+```bash
 pip install dry-foundation
 ```
 
