@@ -22,7 +22,7 @@ docs_html := docs_dir / "build/html"
 
 [doc("Run a quick set of tests")]
 @test-quick: check-uv
-    uv run pytest
+    uv run pytest tests/
 
 
 [doc("Run tests")]

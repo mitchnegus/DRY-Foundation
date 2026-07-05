@@ -30,7 +30,7 @@ def test_package(session):
         external=True,
     )
     try:
-        session.run("coverage", "run", "-m", "pytest")
+        session.run("coverage", "run", "-m", "pytest", "tests/")
     finally:
         session.run("coverage", "report", "--show-missing", "--include", "tests/*")
         session.run("coverage", "report", "--show-missing", "--include", "src/*")
