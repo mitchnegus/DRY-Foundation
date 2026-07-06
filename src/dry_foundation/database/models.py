@@ -87,7 +87,7 @@ class AuthorizedAccessMixin:
         Parameters
         ----------
         *args :
-            The arguments to pass to the `sqlalchemy.select` function.
+            The arguments to pass to the ``sqlalchemy.select`` function.
             If no arguments are given, the query selects for only this
             model.
         guaranteed_joins : tuple
@@ -95,7 +95,7 @@ class AuthorizedAccessMixin:
             not included in this model's "user ID join chain" but which
             should be added to this specific user-authorized join.
         **kwargs :
-            The keyword arguments to pass to the `sqlalchemy.select`
+            The keyword arguments to pass to the ``sqlalchemy.select``
             function.
 
         Returns
@@ -114,7 +114,7 @@ class AuthorizedAccessMixin:
 
     @classmethod
     def _join_user(cls, query):
-        """Perform joins necessary to link the current model to a `User`."""
+        """Perform joins necessary to link the current model to a ``User``."""
         from_arg = cls
         for join_model in cls._user_id_join_chain:
             # Specify left ("from") and right ("target") sides of joins exactly

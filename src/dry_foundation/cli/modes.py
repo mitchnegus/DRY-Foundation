@@ -134,14 +134,15 @@ class LocalAppMode(CustomCLIAppMode):
 
         Notes
         -----
-        This app uses the `invoke` method of a click `Context` object
-        to reproduce the standard behavior of `flask run` when running
-        the app from the command line. Where Flask's run command parses
-        the `FLASK_DEBUG` environment variale (rather than accepting
-        `--debug` as an argument directly), this method adjusts the
-        environment variable to match the default debug setting of this
-        application type. If the `FLASK_DEBUG` variable is already set,
-        it will override the application type's default value.
+        This app uses the ``invoke`` method of a click ``Context``
+        object to reproduce the standard behavior of ``flask run`` when
+        running the app from the command line. Where Flask's run command
+        parses the ``FLASK_DEBUG`` environment variale (rather than
+        accepting ``--debug`` as an argument directly), this method
+        adjusts the environment variable to match the default debug
+        setting of this application type. If the ``FLASK_DEBUG``
+        variable is already set, it will override the application type's
+        default value.
         """
         os.environ.setdefault("FLASK_DEBUG", str(self._debug))
         self._context.invoke(run_command, host=self._host, port=self._port)

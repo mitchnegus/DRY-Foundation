@@ -64,7 +64,7 @@ class DatabaseViewHandlerMeta(DatabaseHandlerMeta):
     """
     A metaclass defining a universal API for database view handlers.
 
-    Similar to the `DatabaseHandlerMeta`, this metasubclass defines a
+    Similar to the ``DatabaseHandlerMeta``, this metasubclass defines a
     consistent set of behaviors for database handlers that focus on a
     model based on a database view (rather than a native database
     component). Since the ORM model views managed by a handler each have
@@ -146,7 +146,7 @@ class DatabaseHandlerMixin:
     Note
     ----
     Tools relying on the database handler functionality (e.g., both the
-    `DatabaseHandler` and the `DatabaseViewHandler`) may have different
+    ``DatabaseHandler`` and the ``DatabaseViewHandler``) may have different
     metaclasses. This mixin allows the functionality of a database
     handler to be shared by any objects that implement the database
     handler interface.
@@ -174,11 +174,12 @@ class DatabaseHandlerMixin:
             The query to be customized.
         criteria : QueryCriteria
             Additional criteria to use when applying filters to the
-            query. (Any filters with a value of `None` will be ignored.)
+            query. (Any filters with a value of ``None`` will be
+            ignored.)
         column_orders : dict
             A mapping between columns and the sorting order to
-            apply to those columns (e.g., 'ASC' or 'DESC'). Columns will
-            be sorted first to last.
+            apply to those columns (e.g., ``"ASC"`` or ``"DESC"``).
+            Columns will be sorted first to last.
         offset : int
             A numerical value indicating the offset number of the
             returned query results.
@@ -195,8 +196,8 @@ class DatabaseHandlerMixin:
         ----
         As an implementation detail, the query returned by this method
         defined in the lowest level subclass should always be the final
-        query executed by the current `Session` object in the
-        `get_entries` method.
+        query executed by the current ``Session`` object in the
+        ``get_entries`` method.
         """
         column_orders = column_orders if column_orders else {}
         query = cls._sort_query(query, column_orders)
@@ -229,8 +230,8 @@ class DatabaseHandlerMixin:
             The query to be sorted.
         column_orders :
             A mapping of pairs consisting of a table column key and a
-            string value describing the sorting order ('ASC' or 'DESC')
-            for the column.
+            string value describing the sorting order (``"ASC"`` or
+            ``"DESC"``) for the column.
         """
         for column, sort_order in column_orders.items():
             if sort_order:
@@ -265,11 +266,12 @@ class DatabaseHandlerMixin:
             all entries will be returned.
         criteria : QueryCriteria, optional
             Additional criteria to use when applying filters to the
-            query. (Any filters with a value of `None` will be ignored.)
+            query. (Any filters with a value of ``None`` will be
+            ignored.)
         column_orders : dict, optional
             A mapping between column names and the sorting order to
-            apply to those columns (e.g., 'ASC' or 'DESC'). Columns will
-            be sorted first to last.
+            apply to those columns (e.g., ``"ASC"`` or ``"DESC"``).
+            Columns will be sorted first to last.
         offset : int, optional
             A numerical value indicating the offset number of the
             returned query results.
@@ -305,16 +307,16 @@ class DatabaseHandlerMixin:
         ----------
         criteria : QueryCriteria
             Criteria to use when applying filters to the query. (If all
-            criteria are `None`, the returned entry will be `None`.)
+            criteria are ``None``, the returned entry will be ``None``.)
         column_orders : dict
             A mapping between column names and the sorting order to
-            apply to those columns (e.g., 'ASC' or 'DESC'). Columns will
-            be sorted first to last.
+            apply to those columns (e.g., ``"ASC"`` or ``"DESC"``).
+            Columns will be sorted first to last.
         require_unique : bool
             A flag indicating whether a found entry must be the one and
-            only entry matching the criteria. The default is `True`, and
-            if an entry is not the only one matching the criteria, an
-            error is raised.
+            only entry matching the criteria. The default is ``True``,
+            and if an entry is not the only one matching the criteria,
+            an error is raised.
 
         Returns
         -------

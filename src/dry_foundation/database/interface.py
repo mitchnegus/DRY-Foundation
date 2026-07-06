@@ -33,7 +33,7 @@ class SQLAlchemy:
     ----------
     echo_engine : bool, optional
         A flag passed to the interface's engine indicating if output
-        should be echoed. The default is `False`.
+        should be echoed. The default is ``False``.
     """
 
     metadata = ViewAwareMetaData()
@@ -124,7 +124,7 @@ class SQLAlchemy:
             function.
         echo_engine : bool, optional
             A flag passed to the interface's engine indicating if output
-            should be echoed. The default is `None` which falls back
+            should be echoed. The default is ``None`` which falls back
             to the default set by the selected interface.
         """
         # Prepare database access with SQLAlchemy:

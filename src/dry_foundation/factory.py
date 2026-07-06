@@ -69,13 +69,13 @@ class Factory:
     Parameters
     ----------
     factory_func : callable
-        An application factory function (e.g., `create_app`). This is
-        typically the function wrapped by the `@Factory` decorator.
+        An application factory function (e.g., ``create_app``). This is
+        typically the function wrapped by the ``@Factory`` decorator.
     db_interace : object, optional
         The interface to use to access the application database.
     echo_engine : bool, optional
         A flag passed to the interface's engine indicating if output
-        should be echoed. The default is `None` defaulting the default
+        should be echoed. The default is ``None`` defaulting the default
         set by the interface instance.
     """
 

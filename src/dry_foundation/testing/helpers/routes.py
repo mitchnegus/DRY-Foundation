@@ -108,7 +108,7 @@ class TestRoutes:
 
     def page_title_includes_substring(self, substring):
         """
-        Return `True` if the page title includes a matching substring.
+        Return ``True`` if the page title includes a matching substring.
 
         Parameters
         ----------
@@ -125,7 +125,7 @@ class TestRoutes:
 
     def page_heading_includes_substring(self, substring, level="h1"):
         """
-        Return `True` if the page heading includes a matching substring.
+        Return ``True`` if the page heading includes a matching substring.
 
         Parameters
         ----------

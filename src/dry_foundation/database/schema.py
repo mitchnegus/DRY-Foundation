@@ -15,7 +15,7 @@ class CreateView(_CreateView):
 
 class ViewAwareMetaData(MetaData):
     """
-    A subclass of `MetaData` that prevents automatic view creation in the database.
+    A subclass of ``MetaData`` that prevents automatic view creation in the database.
     """
 
     def create_all(self, bind=None, checkfirst=True, tables=None):
@@ -32,10 +32,10 @@ class View(Table):
     A view of the database.
 
     An object providing a view interface on a table. This is a subclass
-    of a `sqlalchemy.sql.expression.Table` object, but which does not
+    of a ``sqlalchemy.sql.expression.Table`` object, but which does not
     use the DDL to create the view in the database. The view is instead
     created after the engine creates the remaining tables, using the
-    `ViewAwareMetaData` object to enforce the limitation on view
+    ``ViewAwareMetaData`` object to enforce the limitation on view
     creation.
 
     Parameters
@@ -58,10 +58,10 @@ class View(Table):
     Notes
     -----
     This object uses a combination of the tooling provided by the
-    `sqlalchemy_views` package (https://pypi.org/project/sqlalchemy-views/),
+    ``sqlalchemy_views`` package (https://pypi.org/project/sqlalchemy-views/),
     the SQLAlchemy wiki resource on 'Views'
     (https://github.com/sqlalchemy/sqlalchemy/wiki/Views). and the basic
-    functionality of the `Table` object.
+    functionality of the ``Table`` object.
     """
 
     inherit_cache = True
