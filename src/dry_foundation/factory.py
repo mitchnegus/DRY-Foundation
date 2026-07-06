@@ -8,6 +8,7 @@ from .cli import interface as cli
 from .config import DevelopmentConfig
 from .config.default_settings import InstanceBasedConfig
 from .database import SQLAlchemy
+from .static import build_javascript_import_map, static_assets_blueprint
 
 
 class DryFlask(Flask):
@@ -36,6 +37,7 @@ class DryFlask(Flask):
         )
         self.app_name = app_name or import_name
         self.cli = cli.DryFlaskGroup(import_name)
+        self.register_static_assets()
 
     @classmethod
     def set_default_config_type(cls, config_type):
@@ -60,6 +62,10 @@ class DryFlask(Flask):
         return self.default_config_type(
             self.import_name, self.instance_path, app_name=self.app_name
         )
+
+    def register_static_assets(self):
+        self.register_blueprint(static_assets_blueprint)
+        self.jinja_env.globals["map_imports"] = build_javascript_import_map
 
 
 class Factory:
