@@ -65,6 +65,10 @@ include = [
     'src/dry_foundation/static/**',
     'src/dry_foundation/templates/**',
 ]
+exclude = [
+    'justfile',
+    'eslint.config.mjs',
+]
 
 [tool.hatch.build.hooks.vcs]
 version-file = 'src/dry_foundation/_version.py'
