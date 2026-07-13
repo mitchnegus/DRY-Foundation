@@ -92,4 +92,5 @@
 - Rename handlers to reflect that they are implementing repository behavior
 - Split database handler `add_match_filter` method into methods for singular and iterable arguments (`add_membership_filter`)
 - Add a `ModelView` object to guard against database alterations for views
+- Provide a `DynamicFieldList` form field object
 - Bundle a minimal sample of common JavaScript modules with the package
