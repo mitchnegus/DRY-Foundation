@@ -2,7 +2,6 @@
  * Facilitate the replacement of form values with suggestions.
  */
 
-
 /**
  * A class for replacing elements of a form with suggested values.
  *
@@ -51,8 +50,6 @@ class SuggestionSelector {
   getSuggestionText() {
     return this.$suggestion.text();
   }
-
 }
-
 
 export { SuggestionSelector };

@@ -6,7 +6,12 @@ docs_html := docs_dir / "build/html"
 
 [private]
 @check-uv:
-    command -v uv >/dev/null || (echo "Error: 'uv' is not installed.")
+    command -v uv > /dev/null || (echo "Error: 'uv' is not installed.")
+
+
+[private]
+@check-npm:
+    command -v npm > /dev/null || (echo "Error: 'npm' is not installed.")
 
 
 [private]
@@ -30,27 +35,48 @@ docs_html := docs_dir / "build/html"
     uvx nox -s test
 
 
-[doc("Format the package source code")]
-@format: check-uv
-    echo "Format imports:"
+[doc("Format the Python package source code")]
+@format-python: check-uv
+    echo "Format Python imports:"
     uvx ruff check --select I --fix
-    echo "Format source:"
+    echo "Format Python source:"
     uvx ruff format
+
+[doc("Format the JavaScript package source code")]
+@format-js: check-npm
+    echo "Format Javascript:"
+    npx prettier --write .
+
+
+[doc("Format the package source code")]
+@format: format-python format-js
 
 
 [doc("Check source code formatting")]
 [arg("flag", pattern="--help|--check|--diff")]
 @format-check flag="--check": check-uv
-    echo "Check import sorting:"
+    echo "Check Python import sorting:"
     uvx ruff check --select I {{ if flag == "--check" { "" } else { flag } }}
-    echo "Check source code formatting:"
+    echo "Check Python source code formatting:"
     uvx ruff format {{ flag }}
+    echo "Check JavaScript source code formatting:"
+    npx prettier --check .
+
+
+[doc("Lint the Python package source code")]
+@lint-python *flags: check-uv
+    echo "Lint Python source code:"
+    uvx ruff check {{ flags }}
+
+
+[doc("Lint the JavaScript package source code")]
+@lint-js: check-npm
+    echo "Lint JavaScript source code:"
+    npm run lint
 
 
 [doc("Lint the package source code")]
-@lint *flags: check-uv
-    echo "Lint source code:"
-    uvx ruff check {{ flags }}
+@lint: lint-python lint-js
 
 
 [doc("Bundle the package for distribution")]

@@ -68,6 +68,9 @@ docs/source/api
 # PyBuilder
 target/
 
+# Node files
+node_modules/
+
 # Mac custom attributes file
 .DS_Store
 

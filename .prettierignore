@@ -1,0 +1,11 @@
+instance/
+.git/
+node_modules/
+.venv/
+.nox/
+.ruff_cache/
+.pytest_cache/
+.coverage/
+htmlcov/
+**/dist/
+docs/

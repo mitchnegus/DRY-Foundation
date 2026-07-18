@@ -2,7 +2,6 @@
  * Provide standardized utility functions for handling network communications.
  */
 
-
 /**
  * Send an HTTP POST request with a JSON payload using the native Fetch API.
  *
@@ -16,23 +15,22 @@
  */
 function sendPostRequest(endpoint, rawData, action = () => {}) {
   fetch(endpoint, {
-    method: 'POST',
+    method: "POST",
     headers: {
-      'Content-Type': 'application/json; charset=UTF-8'
+      "Content-Type": "application/json; charset=UTF-8",
     },
-    body: JSON.stringify(rawData)
+    body: JSON.stringify(rawData),
   })
-    .then(response => {
-      if (!response.ok) throw new Error('Network response was not ok');
+    .then((response) => {
+      if (!response.ok) throw new Error("Network response was not ok");
       return response.json();
     })
-    .then(data => {
+    .then((data) => {
       action(data);
     })
-    .catch(error => {
-      console.log('There was an error in the request.', error);
+    .catch((error) => {
+      console.log("There was an error in the request.", error);
     });
 }
-
 
 export { sendPostRequest };
