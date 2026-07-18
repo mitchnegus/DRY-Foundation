@@ -1,27 +1,72 @@
-/*
- * Execute the autocomplete interface when using an input element.
+/**
+ * Facilitate autocomplete suggestions for a text input.
  *
  * Opens an interface for suggesting input values when a user interacts
- * with a form input. The interface can be navigated using the tab and
- * enter keys, and attempts to be as intuitive as possible.
+ * with a form input. The interface can be navigated using the tab,
+ * arrow, and enter keys, and attempts to be as intuitive as possible.
  */
 
 import { sendPostRequest } from "dry-foundation/requests";
 
+/**
+ * Test whether `target` starts with `prefix` (case-sensitive).
+ *
+ * @param {string} prefix - The candidate prefix.
+ * @param {string} target - The string being tested.
+ * @returns {boolean} Whether `target` begins with `prefix`.
+ */
 function isAnchoredMatch(prefix, target) {
   return target.startsWith(prefix);
 }
 
+/**
+ * Test whether `target` contains `substring` anywhere (case-sensitive).
+ *
+ * @param {string} substring - The candidate substring.
+ * @param {string} target - The string being tested.
+ * @returns {boolean} Whether `target` contains `substring`.
+ */
 function isContainedMatch(substring, target) {
   return target.includes(substring);
 }
 
+/**
+ * A dropdown box displaying/managing autocomplete suggestions.
+ *
+ * Each instance manages exactly one input element and creates its own
+ * suggestion box in the DOM; use a separate `AutocompleteBox` per input
+ * that needs autocomplete behavior.
+ *
+ * Usage protocol: after construction, call `postRequest` to fetch the
+ * full set of candidate suggestions from the server (via
+ * `dry-foundation/requests`'s `sendPostRequest`). That response is
+ * cached on the instance and filtered client-side against the user's
+ * input on every keystroke — `postRequest` does not need to be called
+ * again as the user types.
+ *
+ * Keyboard controls, once the box is open:
+ * - `ArrowUp`/`ArrowDown`: move the highlighted ("active") suggestion.
+ * - `Tab`/`Shift+Tab`: same as arrow down/up, respectively.
+ * - `Enter`: select the active suggestion (or close with no
+ *   selection, if none is active).
+ * - `ArrowRight`: select the active suggestion and allow further editing
+ *   of the selection text.
+ *
+ * Call `release()` when the input element is being removed from the
+ * DOM or no longer needs autocomplete behavior to avoid leaking event
+ * listeners.
+ */
 class AutocompleteBox {
-  // A box for displaying autocomplete suggestions
   defaultBoxSize = 10;
   defaultBoxStartIndex = 0;
   boxClassName = "autocomplete-box";
 
+  /**
+   * Create the autocomplete box for a given input element.
+   *
+   * @param {Element} inputElement - The input element that will
+   *     trigger and receive autocomplete suggestions.
+   */
   constructor(inputElement) {
     this.inputElement = inputElement;
     this.boxSize = this.defaultBoxSize;
@@ -39,26 +84,60 @@ class AutocompleteBox {
     this.inputElement.addEventListener("input", this._handleInput);
   }
 
+  /**
+   * Tear down this instance's event listeners.
+   *
+   * Closes the box (if open) and removes the `input` listener bound in
+   * the constructor. Call this before discarding an `AutocompleteBox`
+   * instance (e.g., when its input element is removed from the page)
+   * to avoid leaking event listeners.
+   */
   release() {
     this.close();
     this.inputElement.removeEventListener("input", this._handleInput);
   }
 
+  /**
+   * The ending index (exclusive) of the currently visible suggestion window.
+   *
+   * @returns {number}
+   */
   get boxEndIndex() {
     return this.boxStartIndex + this.boxSize;
   }
 
+  /**
+   * Cache the full set of candidate suggestions returned by the server.
+   *
+   * @param {string[]} response - The list of candidate suggestion
+   *     strings, to be filtered client-side against user input.
+   */
   loadResponse(response) {
     this.response = response;
   }
 
+  /**
+   * Fetch the full set of candidate suggestions from the server.
+   *
+   * The response is cached via `loadResponse` and does not need to be
+   * re-fetched as the user types; matching against typed input happens
+   * client-side using the cached response.
+   *
+   * @param {string} endpoint - The URL to POST to.
+   * @param {*} rawData - The request payload, passed through to
+   *     `sendPostRequest`.
+   */
   postRequest(endpoint, rawData) {
-    // Execute a POST request to find matches
     sendPostRequest(endpoint, rawData, this.loadResponse.bind(this));
   }
 
+  /**
+   * Handle an `input` event on the associated input element.
+   *
+   * Refreshes the list of matches for the current input value, and
+   * opens/refreshes or closes the suggestion box as appropriate.
+   */
   update() {
-    // Update the box (opening or closing it if necessary)
     const userInput = this.inputElement.value;
     if (this.#needsRefresh(userInput)) {
       if (!this.boxElement) {
@@ -70,16 +149,26 @@ class AutocompleteBox {
     }
   }
 
+  /**
+   * Create the suggestion box element and insert it into the DOM.
+   *
+   * The box is appended as a sibling of the input element (inside the
+   * input's parent) and keyboard navigation is bound for as long as
+   * the box remains open.
+   */
   open() {
-    // Open the autocomplete box
     this.boxElement = document.createElement("div");
     this.boxElement.className = this.boxClassName;
     this.inputElement.parentElement.appendChild(this.boxElement);
     this.#bindKeyboardAction();
   }
 
+  /**
+   * Close the suggestion box (and unbind its keyboard navigation).
+   *
+   * Safe to call whether or not the box is currently open.
+   */
   close() {
-    // Close the autocomplete box
     this.clear();
     if (this.boxElement) {
       this.boxElement.remove();
@@ -88,20 +177,32 @@ class AutocompleteBox {
     this.#unbindKeyboardAction();
   }
 
+  /**
+   * Clear and repopulate the suggestion box using the current matches.
+   */
   refresh() {
-    // Refresh the box by clearing old suggestions and populating with new ones
     this.clear();
     this.populate();
   }
 
+  /**
+   * Clear and repopulate the suggestion box using the current matches.
+   */
   clear() {
-    // Clear the suggestions in the autocomplete box
     this.boxSuggestions.forEach((suggestion) => suggestion.remove());
     this.boxSuggestions = [];
   }
 
+  /**
+   * Render the current window of `matches` (per `boxStartIndex`/
+   * `boxEndIndex`) as suggestion elements inside the box, and bind
+   * mouse interaction to each one.
+   *
+   * Suggestion text is set via `textContent`, so it is always treated
+   * as plain text (not HTML), even if it contains characters like `<`
+   * or `&`.
+   */
   populate() {
-    // Populate the autocomplete box with suggestions
     this.#setBoxRange();
     for (let i = this.boxStartIndex; i < this.boxEndIndex; i++) {
       const suggestionElement = document.createElement("div");
@@ -115,8 +216,16 @@ class AutocompleteBox {
     this.#bindMouseAction();
   }
 
+  /**
+   * Select a suggestion (fill in the input text and then close the box).
+   *
+   * @param {Element|null} suggestion - The suggestion element to
+   *     select, or `null` to close the box without filling the input
+   *     (e.g., when Enter is pressed with no suggestion highlighted).
+   * @param {boolean} [advance=true] - Whether to move focus to the
+   *     next input in the form after selecting.
+   */
   select(suggestion, advance = true) {
-    // Select a suggestion from the list
     if (suggestion !== null) {
       this.fill(suggestion);
     }
@@ -133,8 +242,12 @@ class AutocompleteBox {
     this.inputElement.value = suggestion.textContent;
   }
 
+  /**
+   * Shift focus to the next input on the same form element.
+   *
+   * If this is the last input on the form, this does nothing.
+   */
   advanceFocus() {
-    // Shift the focus to the next input element
     const formInputs = Array.from(
       this.inputElement.closest("form").querySelectorAll("input"),
     );
@@ -152,6 +265,12 @@ class AutocompleteBox {
 
   /**
    * Refresh autocomplete suggestions using the POST response.
+   *
+   * Resets the box's scroll window and highlighted suggestion, then
+   * recomputes `matches` against the cached `response`, preferring
+   * anchored (prefix) matches before contained (substring) matches.
+   *
+   * @param {string} userInput - The input element's current value.
    */
   refreshMatches(userInput) {
     this.matches = [];
