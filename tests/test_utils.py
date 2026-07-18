@@ -1,38 +1,9 @@
 """Tests for package utilities."""
 
-from datetime import date, datetime
+from datetime import datetime
 from unittest.mock import patch
 
-from dry_foundation.utils import define_basic_template_global_variables, get_timestamp
-
-
-@patch("dry_foundation.utils.date")
-@patch("dry_foundation.utils.import_module")
-def test_template_global_variables(mock_import_function, mock_date_cls):
-    # Set some mock return values
-    mock_import_function.return_value.version = "M.m.p.devX"
-    mock_date_cls.today.return_value = date(2000, 1, 1)
-    # Check the variable values
-    template_global_variables = define_basic_template_global_variables("module.name")
-    assert template_global_variables == {
-        "app_version": "M.m.p.devX",
-        "copyright_statement": "© 2000",
-        "date_today": date(2000, 1, 1),
-    }
-
-
-@patch("dry_foundation.utils.import_module")
-def test_template_global_variables_invalid_version_module(mock_import_function):
-    mock_import_function.side_effect = ModuleNotFoundError
-    template_global_variables = define_basic_template_global_variables("module.name")
-    assert template_global_variables["app_version"] == ""
-
-
-@patch("dry_foundation.utils.import_module")
-def test_template_global_variables_hashed_version(mock_import_function):
-    mock_import_function.return_value.version = "M.m.p.devX+abcdef"
-    template_global_variables = define_basic_template_global_variables("module.name")
-    assert template_global_variables["app_version"] == "M.m.p.devX"
+from dry_foundation.utils import get_timestamp
 
 
 @patch("dry_foundation.utils.datetime")

@@ -8,7 +8,7 @@ from .cli import interface as cli
 from .config import DevelopmentConfig
 from .config.default_settings import InstanceBasedConfig
 from .database import SQLAlchemy
-from .static import build_javascript_import_map, static_assets_blueprint
+from .web import build_javascript_import_map, static_assets_blueprint
 
 
 class DryFlask(Flask):
