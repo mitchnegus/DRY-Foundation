@@ -23,11 +23,16 @@ class _ResponseSoup:
 
     def _load_html(self):
         # Parse the response, saving the HTML and applying BeautifulSoup
-        response_string = self.response.data.decode("utf-8")
+        response_data_string = self.response.data.decode("utf-8")
         try:
-            html = json.loads(response_string)
+            response_data = json.loads(response_data_string)
         except json.decoder.JSONDecodeError:
-            html = response_string
+            html = response_data_string
+        else:
+            if isinstance(response_data, dict) and response_data.get("type") == "html":
+                html = response_data.get("content")
+            else:
+                html = response_data
         return html
 
     def _load_soup(self):

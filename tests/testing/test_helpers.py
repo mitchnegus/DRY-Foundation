@@ -3,6 +3,7 @@
 from unittest.mock import Mock, PropertyMock, patch
 
 import pytest
+from bs4 import BeautifulSoup
 from flask.testing import FlaskClient
 
 from dry_foundation.testing.helpers import TestRoutes as _TestRoutes
@@ -59,6 +60,14 @@ class TestRoutesHelper(_TestRoutes):
         self.get_route("/mock/route")
         assert self.active_response.response == MockResponse
         self.client.get.assert_called_once_with("/prefixed/mock/route")
+
+    @patch.object(
+        MockResponse, "data", new=b'{"type":"html","content":"<html></html>"}'
+    )
+    def test_get_route_json_envelope(self, mock_client):
+        self.get_route("/mock/route")
+        assert self.html == "<html></html>"
+        assert isinstance(self.soup, BeautifulSoup)
 
     @patch.object(MockResponse, "data", new=b'["<html></html>","<html></html>"]')
     def test_get_route_soup_list(self, mock_client):
