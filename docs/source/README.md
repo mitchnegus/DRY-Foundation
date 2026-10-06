@@ -72,6 +72,7 @@ The app has lots of tools, but the basics can be used just as drop-in replacemen
 
 from dry_foundation import DryFlask, Factory
 
+
 @Factory
 def create_app(config=None):
     app = DryFlask(__name__, app_name="DRY Application")

@@ -91,9 +91,9 @@ docs_html := docs_dir / "build/html"
 
 [doc("Clean all automatically generated files")]
 @clean: clean-docs
-	rm -rf {{ package_dir }}/_version.py
-	rm -rf htmlcov/
-	rm -rf dist/ *egg-info/
-	rm -rf .pytest_cache/
-	rm -rf .venv
-	rm -rf .nox
+    rm -rf {{ package_dir }}/_version.py
+    rm -rf htmlcov/
+    rm -rf dist/ *egg-info/
+    rm -rf .pytest_cache/
+    rm -rf .venv
+    rm -rf .nox
