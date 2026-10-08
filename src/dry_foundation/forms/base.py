@@ -20,4 +20,10 @@ class FlaskSubform(FlaskForm):
     """A subform disabling CSRF (CSRF is REQUIRED in encapsulating form)."""
 
     def __init__(self, *args, **kwargs):
-        super().__init__(meta={"csrf": False}, *args, **kwargs)
+        meta = kwargs.get("meta", {})
+        if meta.setdefault("csrf", False):
+            raise ValueError(
+                "Subforms inherit CSRF settings from their parent and must "
+                "have the CSRF meta tag set as `False`"
+            )
+        super().__init__(meta=meta, *args, **kwargs)

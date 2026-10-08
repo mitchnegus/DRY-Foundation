@@ -29,7 +29,16 @@ def test_abstract_form(client_context):
         MockInvalidForm()
 
 
-def test_subform(client_context):
-    with patch.object(FlaskSubform.Meta, "update_values") as mock_meta_update_method:
-        FlaskSubform()
-        mock_meta_update_method.assert_any_call({"csrf": False})
+class TestSubform:
+    """Tests for subform objects."""
+
+    def test_subform(self, client_context):
+        with patch.object(
+            FlaskSubform.Meta, "update_values"
+        ) as mock_meta_update_method:
+            FlaskSubform()
+            mock_meta_update_method.assert_any_call({"csrf": False})
+
+    def test_subform_csrf_true(self, client_context):
+        with pytest.raises(ValueError, match="Subforms inherit CSRF settings"):
+            FlaskSubform(meta={"csrf": True})
