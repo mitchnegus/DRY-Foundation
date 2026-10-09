@@ -95,3 +95,7 @@
 - Provide a `DynamicFieldList` form field object
 - Add the `fetch_json_envelope` decorator for wrapping routes returning raw HTML to return JSON
 - Bundle a minimal sample of common JavaScript modules with the package
+
+### 2.1.0 (in progress)
+
+- Add a `StrippedFieldMixin` for consistently stripping whitespace from fields

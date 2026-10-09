@@ -30,3 +30,15 @@ class DynamicFieldList(FieldList):
             field_data = unset_value if current_max_index + 1 < index else data
             self.append_entry(data=field_data)
         return self.pop_entry()
+
+
+class StrippedFieldMixin:
+    """A mixin class for uniformly stripping whitespace from fields."""
+
+    def __init__(self, *args, **kwargs):
+        filters = kwargs.pop("filters", [])
+        super().__init__(filters=[self._strip_whitespace, *filters], *args, **kwargs)
+
+    @staticmethod
+    def _strip_whitespace(value):
+        return value.strip() if value else None
