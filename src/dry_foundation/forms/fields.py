@@ -2,8 +2,9 @@
 Objects for building consistent form fields.
 """
 
-from wtforms.fields import FieldList
+from wtforms.fields import FieldList, SelectMultipleField
 from wtforms.utils import unset_value
+from wtforms.widgets import CheckboxInput, ListWidget
 
 
 class DynamicFieldList(FieldList):
@@ -30,6 +31,24 @@ class DynamicFieldList(FieldList):
             field_data = unset_value if current_max_index + 1 < index else data
             self.append_entry(data=field_data)
         return self.pop_entry()
+
+
+class MultiCheckboxField(SelectMultipleField):
+    """
+    A multiple-select, except displays a list of checkboxes.
+
+    Iterating the field will produce subfields, allowing custom rendering of
+    the enclosed checkbox fields.
+
+    Notes
+    -----
+    See
+    https://wtforms.readthedocs.io/en/3.0.x/specific_problems/#specialty-field-tricks
+    for details.
+    """
+
+    widget = ListWidget(prefix_label=False)
+    option_widget = CheckboxInput()
 
 
 class StrippedFieldMixin:

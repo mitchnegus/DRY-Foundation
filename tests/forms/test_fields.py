@@ -5,7 +5,11 @@ from flask_wtf import FlaskForm
 from werkzeug.datastructures import MultiDict
 from wtforms.fields import StringField
 
-from dry_foundation.forms.fields import DynamicFieldList, StrippedFieldMixin
+from dry_foundation.forms.fields import (
+    DynamicFieldList,
+    MultiCheckboxField,
+    StrippedFieldMixin,
+)
 
 
 class DynamicFieldListSampleForm(FlaskForm):
@@ -25,6 +29,33 @@ class TestDynamicFieldList:
         assert isinstance(result_field, StringField)
         assert result_field.data == field_data
         assert all(isinstance(_, StringField) for _ in sample_form.items.entries)
+
+
+class MultiCheckboxFieldSampleForm(FlaskForm):
+    choices = [
+        ("thing-one", "Thing 1"),
+        ("thing-two", "Thing 2"),
+        ("thing-three", "Thing 3"),
+    ]
+    selections = MultiCheckboxField("Selections", choices=choices)
+
+
+class TestMultiCheckboxField:
+    """Tests for the ``MultiCheckboxField`` object."""
+
+    @pytest.fixture
+    def sample_form(self, client_context):
+        return MultiCheckboxFieldSampleForm()
+
+    def test_multi_checkbox_field(self, sample_form):
+        test_formdata = MultiDict(
+            [
+                ("selections", "thing-one"),
+                ("selections", "thing-two"),
+            ]
+        )
+        sample_form.process(formdata=test_formdata)
+        assert sample_form.selections.data == ["thing-one", "thing-two"]
 
 
 class StrippedStringTestField(StrippedFieldMixin, StringField):
