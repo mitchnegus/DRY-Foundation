@@ -1,11 +1,14 @@
 """Tests for form fields."""
 
+from unittest.mock import patch
+
 import pytest
 from flask_wtf import FlaskForm
 from werkzeug.datastructures import MultiDict
 from wtforms.fields import StringField
 
 from dry_foundation.forms.fields import (
+    AutocompleteFieldMixin,
     DynamicFieldList,
     MultiCheckboxField,
     StrippedFieldMixin,
@@ -56,6 +59,34 @@ class TestMultiCheckboxField:
         )
         sample_form.process(formdata=test_formdata)
         assert sample_form.selections.data == ["thing-one", "thing-two"]
+
+
+class AutocompleteTestField(AutocompleteFieldMixin, StringField):
+    pass
+
+
+class AutocompleteTestForm(FlaskForm):
+    string = AutocompleteTestField("Test field")
+
+
+class TestAutocompleteFieldMixin:
+    """Tests for the ``AutocompleteFieldMixin`` object."""
+
+    @pytest.fixture
+    def sample_form(self, client_context):
+        return AutocompleteTestForm()
+
+    @pytest.mark.parametrize(
+        ("given_class", "expected_class"),
+        [
+            (None, "autocomplete"),
+            ("test", "test autocomplete"),
+        ],
+    )
+    def test_autocomplete_field(self, sample_form, given_class, expected_class):
+        with patch.object(StringField, "__call__") as call_method:
+            sample_form.string(class_=given_class)
+        call_method.assert_called_once_with(class_=expected_class)
 
 
 class StrippedStringTestField(StrippedFieldMixin, StringField):

@@ -51,6 +51,17 @@ class MultiCheckboxField(SelectMultipleField):
     option_widget = CheckboxInput()
 
 
+class AutocompleteFieldMixin:
+    """A mixin class for signifying autocomplete functionality."""
+
+    def __call__(self, *args, **kwargs):
+        class_kwarg = kwargs.pop("class_", "") or ""
+        css_classes = class_kwarg.split()
+        css_classes.append("autocomplete")
+        class_ = " ".join(css_classes)
+        return super().__call__(*args, class_=class_, **kwargs)
+
+
 class StrippedFieldMixin:
     """A mixin class for uniformly stripping whitespace from fields."""
 
