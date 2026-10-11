@@ -395,4 +395,54 @@ class AutocompleteBox {
   }
 }
 
-export { AutocompleteBox };
+/**
+ * A dispatcher for adding autocompletion event listeners.
+ */
+class AutocompleteDispatcher {
+  /**
+   * Create the dispatcher for a set of field endpoints.
+   *
+   * @param {Object} endpointMap - The object for mapping field names
+   *     to API endpoints.
+   */
+  constructor(endpointMap) {
+    this.endpointMap = endpointMap;
+  }
+
+  /**
+   * Register event listeners for a form.
+   *
+   * @param {Element} form - The form element to receive registered
+   *     event actions.
+   */
+  register(form) {
+    let autocompleteBox = null;
+    for (const [field, endpoint] of Object.entries(this.endpointMap)) {
+      form.addEventListener("focusin", (event) => {
+        if (this.#checkTargetIsFieldInput(event.target, field)) {
+          autocompleteBox = new AutocompleteBox(event.target);
+          autocompleteBox.postRequest(endpoint, {});
+        }
+      });
+      form.addEventListener("focusout", () => {
+        if (autocompleteBox) {
+          autocompleteBox.release();
+        }
+      });
+    }
+  }
+
+  #checkTargetIsFieldInput(target, field) {
+    return (
+      target.matches("input.autocomplete") &&
+      this.#getInputField(target) == field
+    );
+  }
+
+  #getInputField(inputElement) {
+    const inputID = inputElement.id.split("-");
+    return inputID[inputID.length - 1];
+  }
+}
+
+export { AutocompleteBox, AutocompleteDispatcher };
