@@ -17,13 +17,13 @@ class SuggestionSelector {
   /**
    * Create the suggestion selector.
    *
-   * @param {JQuery} $suggestion - An single suggestion element. Its text
+   * @param {HTMLElement} suggestion - A single suggestion element. Its text
    *     will be used (via `getSuggestionText`) to determine the value
    *     used to replace the associated input's value when clicked.
    */
-  constructor($suggestion) {
-    this.$suggestion = $suggestion;
-    this.$suggestion.on("click", () => {
+  constructor(suggestion) {
+    this.suggestion = suggestion;
+    this.suggestion.addEventListener("click", () => {
       this.#replaceValue();
     });
   }
@@ -36,9 +36,13 @@ class SuggestionSelector {
    * finding the `<input>` within it.
    */
   #replaceValue() {
-    const $formField = this.$suggestion.closest(".form-field.suggestable");
-    const $input = $formField.find("input");
-    $input.val(this.getSuggestionText());
+    const formField = this.suggestion.closest(".form-field.suggestable");
+    if (formField) {
+      const input = formField.querySelector("input");
+      if (input) {
+        input.value = this.getSuggestionText();
+      }
+    }
   }
 
   /**
@@ -48,7 +52,7 @@ class SuggestionSelector {
    * text (e.g., stripping currency formatting) before it's used.
    */
   getSuggestionText() {
-    return this.$suggestion.text();
+    return this.suggestion.textContent;
   }
 }
 
