@@ -96,7 +96,7 @@
 - Add the `fetch_json_envelope` decorator for wrapping routes returning raw HTML to return JSON
 - Bundle a minimal sample of common JavaScript modules with the package
 
-### 2.1.0 (in progress)
+### 2.1.0
 
 - Add HTML templates to the available web assets
 - Add a `StrippedFieldMixin` for consistently stripping whitespace from fields
