@@ -1,15 +1,16 @@
-"""Share static assets with applications built on DRY Foundation."""
+"""Share web assets with applications built on DRY Foundation."""
 
 import json
 
 from flask import Blueprint, url_for
 
 # Define the blueprint
-static_assets_blueprint = Blueprint(
+web_assets_blueprint = Blueprint(
     "dry_foundation",
     __name__,
     static_folder="static",
     static_url_path="/dry-foundation/static",
+    template_folder="templates",
 )
 
 JS_MODULES = {

@@ -98,5 +98,6 @@
 
 ### 2.1.0 (in progress)
 
+- Add HTML templates to the available web assets
 - Add a `StrippedFieldMixin` for consistently stripping whitespace from fields
 - Add a `MultiCheckboxField` (as described in the WTForms docs on [Speciality Field Tricks](https://wtforms.readthedocs.io/en/3.0.x/specific_problems/#specialty-field-tricks))
