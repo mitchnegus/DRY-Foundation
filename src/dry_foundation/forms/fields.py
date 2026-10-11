@@ -71,4 +71,4 @@ class StrippedFieldMixin:
 
     @staticmethod
     def _strip_whitespace(value):
-        return value.strip() if value else None
+        return value.strip() or None if isinstance(value, str) else value

@@ -103,3 +103,7 @@
 - Add a `MultiCheckboxField` (as described in the WTForms docs on [Speciality Field Tricks](https://wtforms.readthedocs.io/en/3.0.x/specific_problems/#specialty-field-tricks))
 - Add a dispatcher for handling autocomplete functionality registration
 - Avoid jQuery in JavaScript modules
+
+### 2.1.1
+
+- Fix uncaptured bugfix on form value stripping
