@@ -109,6 +109,32 @@ class DatabaseSelectField(SelectField, ABC):
         raise NotImplementedError("Define the formatting for a choice in a subclass.")
 
 
+class CustomDatabaseSelectField(DatabaseSelectField):
+    """A select field that can auto-prepare choices from the database."""
+
+    NEW = "+"
+
+    def __init__(self, label=None, validators=None, **kwargs):
+        super().__init__(label=label, validators=validators, **kwargs)
+
+    @property
+    def trailing_choices(self):
+        return [(self.NEW, self._format_new_choice())]
+
+    @abstractmethod
+    def _format_new_choice(self):
+        """
+        Format a database entry field to display as a form field choice.
+
+        Accepts an entry returned by the database repository, and
+        extracts a name to be displayed as a choice in the list of
+        choices.
+        """
+        raise NotImplementedError(
+            "Define the formatting for a new choice in a subclass."
+        )
+
+
 class MultiCheckboxField(SelectMultipleField):
     """
     A multiple-select, except displays a list of checkboxes.

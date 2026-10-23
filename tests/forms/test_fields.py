@@ -1,5 +1,6 @@
 """Tests for form fields."""
 
+from abc import ABC, abstractmethod
 from types import SimpleNamespace
 from unittest.mock import patch
 
@@ -11,6 +12,7 @@ from wtforms.validators import DataRequired
 
 from dry_foundation.forms.fields import (
     AutocompleteFieldMixin,
+    CustomDatabaseSelectField,
     DatabaseSelectField,
     DynamicFieldList,
     MultiCheckboxField,
@@ -44,6 +46,80 @@ class SampleRepo:
         raise NotImplementedError
 
 
+class _TestDatabaseSelectField(ABC):
+    """Abstract base class for testing ``DatabaseSelectField`` objects."""
+
+    @property
+    @abstractmethod
+    def form_cls(self):
+        raise NotImplementedError("Define the test form in a subclass.")
+
+    @staticmethod
+    def _get_custom_sample_form_patch(entry_ids=[]):
+        entries = [SimpleNamespace(id=id_, name=f"Entry {id_}") for id_ in entry_ids]
+        return patch.object(SampleRepo, "get_entries", return_value=entries)
+
+    def _customize_sample_form(self, entry_ids):
+        with self._get_custom_sample_form_patch(entry_ids):
+            return self.form_cls()
+
+    @pytest.fixture
+    def sample_form(self, client_context):
+        return self._customize_sample_form([1, 2])
+
+    def test_blank_choice_first(self, sample_form):
+        field_first_choice = sample_form.selection.choices[0]
+        assert field_first_choice == (DatabaseSelectField.UNSET, "-")
+
+    def test_default_validator_rejects_blank(self, sample_form):
+        formdata = MultiDict([("selection", DatabaseSelectField.UNSET)])
+        sample_form.process(formdata=formdata)
+        assert not sample_form.selection.validate(sample_form)
+        assert sample_form.selection.errors
+
+    def test_valid_selection(self, sample_form):
+        formdata = MultiDict([("selection", "2")])
+        sample_form.process(formdata=formdata)
+        assert sample_form.selection.validate(sample_form)
+
+    def test_choices_refresh_on_instantiation(self, client_context):
+        first_form_choice_entry_ids = [1]
+        with self._get_custom_sample_form_patch(entry_ids=first_form_choice_entry_ids):
+            first_form = self.form_cls()
+        second_form_choice_entry_ids = [1, 2]
+        with self._get_custom_sample_form_patch(entry_ids=second_form_choice_entry_ids):
+            second_form = self.form_cls()
+        for form, form_choice_entry_ids in zip(
+            [first_form, second_form],
+            [first_form_choice_entry_ids, second_form_choice_entry_ids],
+        ):
+            form_default_choices = (
+                form.selection.leading_choices + form.selection.trailing_choices
+            )
+            assert len(form.selection.choices) == (
+                len(form_choice_entry_ids) + len(form_default_choices)
+            )
+
+
+class _TestAbstractDatabaseSelectField(_TestDatabaseSelectField):
+    """Abstract base class for testing abstract ``DatabaseSelectField`` objects."""
+
+    @property
+    @abstractmethod
+    def abstract_field_cls(self):
+        raise NotImplementedError("Define the abstract field in a subclass.")
+
+    def test_abstract_field_cannot_be_instantiated(self, client_context):
+        class IncompleteField(self.abstract_field_cls):
+            pass  # missing (at least) `_db_repo` and `_format_choice`
+
+        class IncompleteForm(FlaskForm):
+            item = IncompleteField("Item")
+
+        with pytest.raises(TypeError):
+            IncompleteForm()
+
+
 class DatabaseSelectTestField(DatabaseSelectField):
     _db_repo = SampleRepo()
 
@@ -59,31 +135,11 @@ class CustomValidatorDatabaseSelectFieldSampleForm(FlaskForm):
     selection = DatabaseSelectTestField("Selection", validators=[DataRequired()])
 
 
-class TestDatabaseSelectField:
+class TestDatabaseSelectField(_TestAbstractDatabaseSelectField):
     """Tests for the ``DatabaseSelectField`` object."""
 
-    @staticmethod
-    def _get_custom_sample_form_patch(entry_ids=[]):
-        entries = [SimpleNamespace(id=id_, name=f"Entry {id_}") for id_ in entry_ids]
-        return patch.object(SampleRepo, "get_entries", return_value=entries)
-
-    def _customize_sample_form(self, entry_ids):
-        with self._get_custom_sample_form_patch(entry_ids):
-            return DatabaseSelectFieldSampleForm()
-
-    @pytest.fixture
-    def sample_form(self, client_context):
-        return self._customize_sample_form([1, 2])
-
-    def test_abstract_field_cannot_be_instantiated(self, client_context):
-        class IncompleteField(DatabaseSelectField):
-            pass  # missing `_db_repo` and `_format_choice`
-
-        class IncompleteForm(FlaskForm):
-            item = IncompleteField("Item")
-
-        with pytest.raises(TypeError):
-            IncompleteForm()
+    abstract_field_cls = DatabaseSelectField
+    form_cls = DatabaseSelectFieldSampleForm
 
     @pytest.mark.parametrize(
         ("entry_ids", "expected_choices"),
@@ -100,17 +156,6 @@ class TestDatabaseSelectField:
         form = self._customize_sample_form(entry_ids)
         assert form.selection.choices == expected_choices
 
-    def test_blank_choice_first(self, sample_form):
-        assert sample_form.selection.choices[0] == (DatabaseSelectField.UNSET, "-")
-
-    def test_choices_refresh_on_instantiation(self, client_context):
-        with self._get_custom_sample_form_patch(entry_ids=[1]):
-            first_form = DatabaseSelectFieldSampleForm()
-        with self._get_custom_sample_form_patch(entry_ids=[1, 2]):
-            second_form = DatabaseSelectFieldSampleForm()
-        assert len(first_form.selection.choices) == 2
-        assert len(second_form.selection.choices) == 3
-
     def test_process_data_default(self, sample_form):
         sample_form.process()
         assert sample_form.selection.data == DatabaseSelectField.UNSET
@@ -118,17 +163,6 @@ class TestDatabaseSelectField:
     def test_process_data_coerces_to_string(self, sample_form):
         sample_form.process(data={"selection": 2})
         assert sample_form.selection.data == "2"
-
-    def test_default_validator_rejects_blank(self, sample_form):
-        formdata = MultiDict([("selection", DatabaseSelectField.UNSET)])
-        sample_form.process(formdata=formdata)
-        assert not sample_form.selection.validate(sample_form)
-        assert sample_form.selection.errors
-
-    def test_valid_selection(self, sample_form):
-        formdata = MultiDict([("selection", "2")])
-        sample_form.process(formdata=formdata)
-        assert sample_form.selection.validate(sample_form)
 
     @pytest.mark.parametrize(
         "selection",
@@ -149,6 +183,55 @@ class TestDatabaseSelectField:
             form = CustomValidatorDatabaseSelectFieldSampleForm()
         form.process(formdata=MultiDict([("selection", DatabaseSelectField.UNSET)]))
         assert form.selection.validate(form)
+
+
+class CustomDatabaseSelectTestField(CustomDatabaseSelectField):
+    _db_repo = SampleRepo()
+
+    def _format_choice(self, entry):
+        return entry.name
+
+    def _format_new_choice(self):
+        return "New entry"
+
+
+class CustomDatabaseSelectFieldSampleForm(FlaskForm):
+    selection = CustomDatabaseSelectTestField("Selection")
+
+
+class TestCustomDatabaseSelectField(_TestAbstractDatabaseSelectField):
+    """Tests for the ``CustomDatabaseSelectField`` object."""
+
+    abstract_field_cls = CustomDatabaseSelectField
+    form_cls = CustomDatabaseSelectFieldSampleForm
+
+    def test_new_choice_last(self, sample_form):
+        field_last_choice = sample_form.selection.choices[-1]
+        assert field_last_choice == (CustomDatabaseSelectField.NEW, "New entry")
+
+    @pytest.mark.parametrize(
+        ("entry_ids", "expected_choices"),
+        [
+            ((), [("-", "-"), ("+", "New entry")]),
+            (
+                (1, 2),
+                [("-", "-"), ("1", "Entry 1"), ("2", "Entry 2"), ("+", "New entry")],
+            ),
+            (  # Entries should be sorted by their actual ID, not by string value
+                (10, 2, 1),
+                [
+                    ("-", "-"),
+                    ("1", "Entry 1"),
+                    ("2", "Entry 2"),
+                    ("10", "Entry 10"),
+                    ("+", "New entry"),
+                ],
+            ),
+        ],
+    )
+    def test_prepare_field_choices(self, client_context, entry_ids, expected_choices):
+        form = self._customize_sample_form(entry_ids)
+        assert form.selection.choices == expected_choices
 
 
 class MultiCheckboxFieldSampleForm(FlaskForm):

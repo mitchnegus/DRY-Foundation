@@ -110,5 +110,5 @@
 
 ### 2.2.0 (in progress)
 
-- Add custom select field for choosing from database entries
+- Add custom select fields for choosing from database entries (`DatabaseSelectField` and `CustomDatabaseSelectField`)
 - Add custom shared validators for WTForms fields
