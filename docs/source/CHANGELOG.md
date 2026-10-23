@@ -108,7 +108,7 @@
 
 - Fix uncaptured bugfix on form value stripping
 
-### 2.2.0 (in progress)
+### 2.2.0
 
 - Add custom select fields for choosing from database entries (`DatabaseSelectField` and `CustomDatabaseSelectField`)
 - Add custom shared validators for WTForms fields
