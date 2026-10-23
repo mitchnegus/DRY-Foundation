@@ -107,3 +107,8 @@
 ### 2.1.1
 
 - Fix uncaptured bugfix on form value stripping
+
+
+### 2.2.0 (in progress)
+
+- Add custom shared validators for WTForms fields
